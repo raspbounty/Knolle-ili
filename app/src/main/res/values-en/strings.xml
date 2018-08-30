@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Knolle ili</string>
+    <string name="all_search">search</string>
+    <string name="all_content">content</string>
+    <string name="all_room">room</string>
+    <string name="all_rack">rack</string>
+    <string name="all_error">Something went wrong</string>
+    <string name="all_notFound">nothing found, please try another item</string>
+    <string name="all_networkError">Connection Error</string>
+    <string name="all_got">Got It</string>
+    <string name="tour_searchbar">Enter what you are looking for</string>
+    <string name="tour_searchbutton">Push to search</string>
+    <string name="tour_table">Touch a row to select an entry</string>
+    <string name="tour_image">Touch the marked area to view the rack</string>
+    <string name="all_noresult">Nothing found, please try another searchword</string>
+    <string name="all_toomanyresults">Too many results please be more specific</string>
+    <string name="all_read">Show All</string>
+    <string name="tour_readbutton">Use this Button to view the whole database and select an entry to get more details</string>
+    <string name="all_noLocalJson">To get offline results you have to press Show All with connection at least once</string>
+</resources>
