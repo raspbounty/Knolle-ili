@@ -7,7 +7,7 @@
     <string name="all_rack">rack</string>
     <string name="all_error">Something went wrong</string>
     <string name="all_notFound">nothing found, please try another item</string>
-    <string name="all_networkError">Connection Error</string>
+    <string name="all_networkError">Connection Error, try the offline mode</string>
     <string name="all_got">Got It</string>
     <string name="tour_searchbar">Enter what you are looking for</string>
     <string name="tour_searchbutton">Push to search</string>
@@ -18,4 +18,6 @@
     <string name="all_read">Show All</string>
     <string name="tour_readbutton">Use this Button to view the whole database and select an entry to get more details</string>
     <string name="all_noLocalJson">To get offline results you have to press Show All with connection at least once</string>
+    <string name="tour_connection">You are now able to activate or deactivate the offline mode</string>
+    <string name="all_update_note">new feature</string>
 </resources>

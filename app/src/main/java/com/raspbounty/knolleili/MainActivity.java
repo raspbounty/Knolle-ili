@@ -3,11 +3,12 @@ package com.raspbounty.knolleili;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Build;
-import android.preference.PreferenceManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -31,8 +32,6 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.DefaultRetryPolicy;
-import com.android.volley.NetworkError;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -48,7 +47,6 @@ import java.util.HashMap;
 import java.util.Random;
 
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
-import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
 import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
 
 import static android.widget.Toast.LENGTH_LONG;
@@ -65,7 +63,10 @@ public class MainActivity extends AppCompatActivity {
     private int clickableChestID, knolleIconId;
     private Menu mOptionsMenu;
     private int[] knolleIcons;
-    private boolean allShowing, backWasShown;
+    private boolean allShowing, backWasShown, connection;
+    private JSONArray localJSONArray;
+    private SharedPreferences sharedPref;
+    private SharedPreferences.Editor editor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,28 +79,36 @@ public class MainActivity extends AppCompatActivity {
         ctx = getApplicationContext();
         activity = MainActivity.this;
 
-        knolleIcons = new int[5];
+        sharedPref = this.getSharedPreferences("myPrefs", MODE_PRIVATE);
+        connection = sharedPref.getBoolean("connection", true);
+        editor = sharedPref.edit();
+        getLocalJSON();
+        allShowing = false;
+        backWasShown = false;
+
+        knolleIcons = new int[7];
         knolleIcons[0] = R.mipmap.ic_weihnachts_knolle;
         knolleIcons[1] = R.mipmap.ic_frau_antje_knolle;
         knolleIcons[2] = R.mipmap.ic_jubilaeums_knolle;
         knolleIcons[3] = R.mipmap.ic_knolle;
         knolleIcons[4] = R.mipmap.ic_piraten_knolle;
+        knolleIcons[5] = R.mipmap.ic_wikinger_knolle;
+        knolleIcons[6] = R.mipmap.ic_post_knolle;
 
         setupLayout();
 
         clearAll();
         createMaps();
 
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(ctx);
+/*
         Boolean showCasePlayed = sharedPref.getBoolean("showcasePlayed", false);
         if(!showCasePlayed) {
             createTour();
-            SharedPreferences.Editor editor = sharedPref.edit();
             editor.putBoolean("showcasePlayed", true);
             editor.apply();
         }
-        allShowing = false;
-        backWasShown = false;
+*/
+        //showNewFeature();
     }
 
     @Override
@@ -112,7 +121,20 @@ public class MainActivity extends AppCompatActivity {
         knolleIconId = rand.nextInt((knolleIcons.length));
         mOptionsMenu.findItem(R.id.knolleIcon).setIcon(knolleIcons[knolleIconId]);
 
+        if(connection){
+            mOptionsMenu.findItem(R.id.connection).setIcon(R.drawable.ic_connection_enabled);
+        }else{
+            mOptionsMenu.findItem(R.id.connection).setIcon(R.drawable.ic_connection_disabled);
+        }
+
         return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        editor.putBoolean("connection", connection);
+        editor.apply();
     }
 
     private void setupLayout(){
@@ -168,6 +190,7 @@ public class MainActivity extends AppCompatActivity {
         roomMap.put("K", getString(R.string.all_k));
         roomMap.put("W", getString(R.string.all_w));
         roomMap.put("D", getString(R.string.all_d));
+        roomMap.put("P", getString(R.string.all_p));
     }
 
     private int getPixelColor(int x, int y){
@@ -236,6 +259,41 @@ public class MainActivity extends AppCompatActivity {
 
         while (resultTable.getChildCount() > 1)
             resultTable.removeView(resultTable.getChildAt(resultTable.getChildCount() - 1));
+    }
+
+    private void showNewFeature(){
+        try {
+            int versionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
+            if (sharedPref.getInt("lastUpdate", 0) != versionCode) {
+                // Commiting in the preferences, that the update was successful.
+                editor.putInt("lastUpdate", versionCode);
+                editor.apply();
+
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+
+                // set title
+                alertDialogBuilder.setTitle(getString(R.string.all_update_note));
+
+                // set dialog message
+                alertDialogBuilder
+                        .setMessage(getString(R.string.tour_connection))
+                        .setCancelable(false)
+                        .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                // if this button is clicked, close
+                                // current activity
+                            }
+                        });
+
+                // create alert dialog
+                AlertDialog alertDialog = alertDialogBuilder.create();
+
+                // show it
+                alertDialog.show();
+            }
+        }catch(Exception e){
+            Log.d("error", e.toString()+"in showNewFeature");
+        }
     }
 
     private void processData(int mode, JSONObject[] resultArray){
@@ -340,7 +398,7 @@ public class MainActivity extends AppCompatActivity {
                                         resultArray[i] = arrJson.getJSONObject(i);
                                     }
                                     if(mode == 2){
-                                        saveLocalCopy(arrJson);
+                                        localJSONArray = arrJson;
                                     }
                                     clearAll();
                                     processData(mode, resultArray);
@@ -354,69 +412,77 @@ public class MainActivity extends AppCompatActivity {
                     public void onErrorResponse(VolleyError volleyError) {
                         dialog.dismiss();
                         Log.d("error", volleyError.toString());
-                        //Toast.makeText(ctx, R.string.all_networkError, LENGTH_LONG).show();
-                        retrieveFromLocal(mode);
+                        Toast.makeText(ctx, R.string.all_networkError, LENGTH_LONG).show();
                     }
                 });
-
-        jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(2000,
-                0,
-                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-
         // Add the request to the RequestQueue.
         queue.add(jsonObjectRequest);
-        queue.start();
+        //queue.start();
+    }
+
+    private boolean getLocalJSON(){
+        if(localJSONArray == null){
+            String jsonArrayString = sharedPref.getString("jsonArray","");
+            if(!jsonArrayString.equals("")) {
+                try{
+                    localJSONArray = new JSONArray(jsonArrayString);
+                    return true;
+                }catch(JSONException e){
+                    Toast.makeText(ctx, R.string.all_noLocalJson, LENGTH_LONG).show();
+                    Log.d("error", e.toString() + " in getLocalJSON");
+                    return false;
+                }
+            }
+            return false;
+        }
+        return true;
     }
 
     private void retrieveFromLocal(int mode){
-        JSONArray jsonArray;
         JSONObject[] resultArray = null;
         ArrayList<JSONObject> resultList = new ArrayList<>();
-        String jsonString = PreferenceManager.
-                getDefaultSharedPreferences(this).getString("json","");
-        if(!jsonString.equals("")) {
-            try {
-                jsonArray = new JSONArray(jsonString);
-                JSONObject[] jsonObjArray = new JSONObject[jsonArray.length()];
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    jsonObjArray[i] = jsonArray.getJSONObject(i);
+        String searchString = input.getText().toString();
+        try{
+            if(localJSONArray!=null) {
+                //convert localJSONArray to type JSONObject[]
+                JSONObject[] localJSONObject = new JSONObject[localJSONArray.length()];
+                for (int i = 0; i < localJSONArray.length(); i++) {
+                    localJSONObject[i] = localJSONArray.getJSONObject(i);
                 }
-                String searchString = input.getText().toString();
 
                 if (mode == 1) {
-                    if(jsonObjArray.length != 0) {
-                        for (JSONObject chest : jsonObjArray) {
-                            if (chest.getString("content").toLowerCase().contains(searchString.toLowerCase())) {
-                                //Log.d("error", chest.getString("content"));
-                                resultList.add(chest);
-                            }
+                    for (JSONObject chest : localJSONObject) {
+                        if (chest.getString("content").toLowerCase().contains(searchString.toLowerCase())) {
+                            //Log.d("error", chest.getString("content"));
+                            resultList.add(chest);
                         }
                         //convert the result List to the result Array
                         resultArray = new JSONObject[resultList.size()];
                         resultList.toArray(resultArray);
                     }
                 } else if (mode == 2) {
-                    resultArray = jsonObjArray;
+                    resultArray = localJSONObject;
                 }
+            }else{
 
-                if(resultArray != null) {
-                    clearAll();
-                    processData(mode, resultArray);
-                }else{
-                    Toast.makeText(ctx, R.string.all_notFound, LENGTH_LONG).show();
-                }
-            }catch(JSONException e){
-                Toast.makeText(ctx, R.string.all_networkError, LENGTH_LONG).show();
-                Log.d("error", e.toString() + " in retrieveFromLocal");
+                //ToDo handle this
             }
+        }catch(JSONException je){
+            Log.d("error", je.toString() + " in retrieveFromLocal");
+        }
+        if(resultArray != null) {
+            clearAll();
+            processData(mode, resultArray);
         }else{
-            Toast.makeText(ctx, R.string.all_noLocalJson, LENGTH_LONG).show();
+            Toast.makeText(ctx, R.string.all_notFound, LENGTH_LONG).show();
         }
     }
 
-    private void saveLocalCopy(JSONArray jsonObject){
-        PreferenceManager.getDefaultSharedPreferences(ctx).edit()
-                .putString("json",jsonObject.toString()).apply();
+    private void saveLocalCopy(){
+        if(localJSONArray!=null) {
+            editor.putString("jsonArray", localJSONArray.toString());
+            editor.apply();
+        }
     }
 
     public static void hideKeyboardFrom(Context context, View view) {
@@ -506,12 +572,40 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void performSearch(){
-        jsonRequest(1);
+        if(connection) {
+            jsonRequest(1);
+        }else{
+            retrieveFromLocal(1);
+        }
     }
 
     private void performRead(){
-        jsonRequest(2);
+        if(connection) {
+            jsonRequest(2);
+        }else{
+            retrieveFromLocal(2);
+        }
         allShowing = true;
+    }
+
+    private void toggleConnection(){
+        if(connection){
+            Boolean noError;
+            noError = getLocalJSON();
+            if(!noError){
+                Toast.makeText(ctx, getString(R.string.all_noLocalJson), LENGTH_LONG).show();
+            }else{
+                mOptionsMenu.findItem(R.id.connection).setIcon(R.drawable.ic_connection_disabled);
+                connection = false;
+            }
+        }else{
+            connection = true;
+            saveLocalCopy();
+            mOptionsMenu.findItem(R.id.connection).setIcon(R.drawable.ic_connection_enabled);
+        }
+
+        editor.putBoolean("connection", connection);
+        editor.apply();
     }
 
     @Override
@@ -527,6 +621,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.knolleIcon:
                 //change Knolle icon to a random one
                 mOptionsMenu.findItem(R.id.knolleIcon).setIcon(knolleIcons[knolleIconId]);
+                return true;
+            case R.id.connection:
+                toggleConnection();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

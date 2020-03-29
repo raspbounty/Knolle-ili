@@ -78,6 +78,10 @@ public class rackPopupActivity extends AppCompatActivity {
                 break;
             case "M":
                 break;
+            case "P":
+                rowCount = 5;
+                colCount = 5;
+                break;
             default:
                 break;
         }
