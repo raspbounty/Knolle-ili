@@ -1,35 +1,69 @@
 <resources>
     <string name="app_name">Knolle ili</string>
     <string-array name="content_array" translatable="false">
-        <item>Gartenwerkzeug</item>
         <item>Farben</item>
         <item>Farbkästen</item>
         <item>Pinsel</item>
-        <item>Madala</item>
-        <item>Papier</item>
         <item>Kreide</item>
-        <item>Scheren</item>
         <item>Klebeband</item>
+        <item>Locher</item>
         <item>Stifte</item>
         <item>Kleber</item>
+        <item>Scheren</item>
         <item>Erste-Hilfe-Packs</item>
         <item>Kühlpacks</item>
         <item>Erste-Hilfe-Rucksack</item>
         <item>Augendusche</item>
-        <item>Farbe</item>
-        <item>Folie</item>
+        <item>Caras</item>
         <item>Caras</item>
         <item>Fundkiste</item>
+        <item>Papier</item>
         <item>Pfadis</item>
+        <item>Pfadis</item>
+        <item>Vasen</item>
         <item>Becher</item>
         <item>Altersstufenfächer</item>
         <item>Wichtel</item>
+        <item>Wichtel</item>
+        <item>Schwarze Eimer</item>
+        <item>Dreckige Becher</item>
+        <item>Wikinger-Schach</item>
+        <item>Kleister</item>
+        <item>Malerkram</item>
+        <item>Gelber Eimer</item>
+        <item>Schwungtuch</item>
+        <item>Dübel</item>
+        <item>Nägel</item>
+        <item>Tackernadeln</item>
+        <item>Schrauben</item>
+        <item>Klemmen</item>
+        <item>Zollstöcke</item>
+        <item>Schmirgelpapier</item>
+        <item>Blaue Eimer</item>
+        <item>Seil</item>
+        <item>Spielekiste</item>
+        <item>(Bälle)</item>
+        <item>Sägen</item>
+        <item>Hammer</item>
+        <item>Zangen</item>
+        <item>Schraubenzieher</item>
+        <item>Tacker</item>
+        <item>Klappspaten</item>
+        <item>Beil</item>
+        <item>Linolbretter</item>
+        <item>Spielekiste</item>
+        <item>(Tücher, Bälle)</item>
+        <item>Jonglierkram</item>
+        <item>Liederbücher</item>
         <item>Musikanlage</item>
         <item>Getränke</item>
         <item>Spiele</item>
         <item>Billiardkram</item>
         <item>Kabeltrommel</item>
         <item>Pokerkoffer</item>
+        <item>Spiele</item>
+        <item>Spiele</item>
+        <item>Knolle-Knolle Maskottchen</item>
         <item>Büro-Material</item>
         <item>Karton-Reste</item>
         <item>Origami-Papier</item>
@@ -38,8 +72,10 @@
         <item>ganze Pappe</item>
         <item>weißes Papier</item>
         <item>Transparentpapier</item>
+        <item>Öffentlichkeitsarbeit</item>
         <item>Plakate</item>
         <item>Knolle-Aufkleber</item>
+        <item>sonstiger Kleinkram (abschließbar)</item>
         <item>Leiter-Persobögen</item>
         <item>Umschläge</item>
         <item>Aufnäher</item>
@@ -47,6 +83,7 @@
         <item>Urkunden</item>
         <item>Öffentlichkeitsarbeit</item>
         <item>Bücher</item>
+        <item>Öffentlichkeitsarbeit</item>
         <item>Beamer</item>
         <item>Mikrofon</item>
         <item>Chemiekalien</item>
@@ -58,75 +95,62 @@
         <item>Müllbeutel</item>
         <item>Handtücher</item>
         <item>Lebensmittel</item>
-        <item>Teelichter</item>
+        <item>Sisal</item>
+        <item>Stoff</item>
         <item>Kerzen</item>
-        <item>Watte</item>
         <item>Quartetts</item>
         <item>Ton</item>
-        <item>Gläser</item>
+        <item>Stoff</item>
         <item>Leder</item>
         <item>Wahlurne</item>
         <item>Karte</item>
         <item>Kompass</item>
-        <item>Perlen</item>
+        <item>Teelichter</item>
         <item>Stofftaschen</item>
         <item>Banner</item>
-        <item>Knüpf-Bänder</item>
-        <item>Filz-Wolle</item>
-        <item>Pressen</item>
-        <item>Wolle</item>
+        <item>Perlen</item>
+        <item>Bast</item>
+        <item>Stoff</item>
+        <item>Stoff</item>
         <item>Ton-Werkzeug</item>
         <item>Stempel</item>
-        <item>Sisal</item>
-        <item>Bastelkram</item>
-        <item>Bohrer</item>
-        <item>Schrauben</item>
-        <item>Nägel</item>
-        <item>Tackernadeln</item>
-        <item>Stofffarbe</item>
-        <item>Siebe</item>
-        <item>Zahnbürsten</item>
-        <item>Acrylfarben</item>
-        <item>Stofffarben</item>
-        <item>Handmalfarben</item>
-        <item>Spraydosen</item>
-        <item>Stoff</item>
-        <item>Fimo</item>
-        <item>Besteck</item>
-        <item>Kleister</item>
-        <item>Malerkram</item>
+        <item>Heisskleber</item>
+        <item>Lötkolben</item>
+        <item>Gläser</item>
+        <item>Windlichter</item>
+        <item>Halloweendeko</item>
+        <item>Filz-Wolle</item>
+        <item>Knüpf-Bänder</item>
         <item>Gips</item>
-        <item>Speckstein</item>
-        <item>Hammer</item>
-        <item>Zangen</item>
-        <item>Schraubenzieher</item>
-        <item>Tacker</item>
+        <item>Wolle</item>
         <item>Geländespiel-Karten</item>
-        <item>Geländespiele</item>
-        <item>Spielekiste</item>
-        <item>Bälle</item>
-        <item>Klemmen</item>
-        <item>Zollstöcke</item>
-        <item>Schmirgelpapier</item>
+        <item>Geräusche-Kim</item>
+        <item>Knicklichter</item>
         <item>Batikfarben</item>
         <item>Stoffbeutel</item>
         <item>Schwedenstuhlstoffe</item>
-        <item>Girlanden</item>
+        <item>Geländespiele</item>
+        <item>Acryl-, Stoff-, Handmalfarben</item>
+        <item>Spraydosen</item>
+        <item>Stofffarbe</item>
+        <item>Siebe</item>
+        <item>Zahnbürsten</item>
         <item>Sand</item>
         <item>Skalpelle</item>
         <item>Filmdosen</item>
-        <item>Holzscheiben</item>
+        <item>Wolle</item>
+        <item>Grablichter</item>
+        <item>Girlanden</item>
+        <item>Pressen</item>
+        <item>Fimo</item>
+        <item>Besteck</item>
         <item>Linol-Zeug</item>
         <item>Brennpeter</item>
-        <item>Heißkleber</item>
         <item>Lochzange</item>
-        <item>Geräusche-Kim</item>
-        <item>Wikinger-Schach</item>
-        <item>Tücher</item>
-        <item>Sägen</item>
-        <item>Liederbücher</item>
-        <item>Spielekiste (Wasser)</item>
-        <item>Knolle-Knolle Maskottchen</item>
+        <item>Bastelkram</item>
+        <item>Speckstein</item>
+        <item>Holzscheiben</item>
+        <item>Watte</item>
     </string-array>
     <string name="all_search">suchen</string>
     <string name="all_content">Inhalt</string>
@@ -138,9 +162,10 @@
     <string name="all_k" translatable="false">Kömpchen</string>
     <string name="all_w" translatable="false">Wappenraum</string>
     <string name="all_d" translatable="false">Dachgiebel</string>
+    <string name="all_p" translatable="false">Kabuff</string>
     <string name="all_error">Ups, das sollte nicht passieren</string>
     <string name="all_notFound">leider nichts gefunden, versuche einen anderen Begriff</string>
-    <string name="all_networkError">Probleme mit der Serververbindung</string>
+    <string name="all_networkError">Probleme mit der Serververbindung, versuche es im offline Modus</string>
     <string name="all_gips" translatable="false">z.B. Gips</string>
     <string name="all_got">Verstanden</string>
     <string name="tour_searchbar">Gib hier ein wonach du suchst</string>
@@ -153,4 +178,6 @@
     <string name="all_read">Alle Anzeigen</string>
     <string name="tour_readbutton">Hier drücken um einen Überblick über das gesamte Material zu bekommen, danach kann das gewünschte ausgewählt werden</string>
     <string name="all_noLocalJson">Damit du auch offline Ergebnisse bekommst, musst du einmal im Netz auf Alle Anzeigen drücken</string>
+    <string name="tour_connection">Der offline Modus kann jetzt manuell aktiviert oder deaktiviert werden</string>
+    <string name="all_update_note">Neue Funktionen</string>
 </resources>
