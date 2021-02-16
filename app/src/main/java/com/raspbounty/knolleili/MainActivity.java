@@ -7,13 +7,19 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Build;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -27,6 +33,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -41,9 +48,12 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.Random;
 
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
@@ -51,15 +61,16 @@ import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
 
 import static android.widget.Toast.LENGTH_LONG;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MyRecyclerViewAdapter.ItemClickListener{
     private AutoCompleteTextView input;
-    private TableLayout resultTable;
+    //private TableLayout resultTable;
+    private RecyclerView rvTable;
     private Context ctx;
     private Activity activity;
     private ImageView resultImage;
-    private HashMap<String, String> roomMap;
+    private HashMap<String, String> roomMap, rackMap;
     private TextView roomName;
-    private ArrayList<ArrayList<String>> resultChests;
+    private ArrayList<Chest> resultChests;
     private int clickableChestID, knolleIconId;
     private Menu mOptionsMenu;
     private int[] knolleIcons;
@@ -67,13 +78,16 @@ public class MainActivity extends AppCompatActivity {
     private JSONArray localJSONArray;
     private SharedPreferences sharedPref;
     private SharedPreferences.Editor editor;
+    private MyRecyclerViewAdapter rvAdapter;
+    private HashMap<String, int[]> shelfMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         input = findViewById(R.id.input);
-        resultTable = findViewById(R.id.resultTable);
+        //resultTable = findViewById(R.id.resultTable);
+        rvTable = findViewById(R.id.rvOutput);
         resultImage = findViewById(R.id.resultImage);
         roomName = findViewById(R.id.roomName);
         ctx = getApplicationContext();
@@ -99,6 +113,8 @@ public class MainActivity extends AppCompatActivity {
 
         clearAll();
         createMaps();
+
+        performRead();
 
 /*
         Boolean showCasePlayed = sharedPref.getBoolean("showcasePlayed", false);
@@ -137,7 +153,41 @@ public class MainActivity extends AppCompatActivity {
         editor.apply();
     }
 
+    public void createMaps(){
+        roomMap = new HashMap<>();
+        roomMap.put("M", getString(R.string.all_m));
+        roomMap.put("K", getString(R.string.all_k));
+        roomMap.put("W", getString(R.string.all_w));
+        roomMap.put("D", getString(R.string.all_d));
+        roomMap.put("P", getString(R.string.all_p));
+
+        rackMap = new HashMap<>();
+        rackMap.put("R1", "Regal 1");
+        rackMap.put("S1", "Schrank 1");
+        rackMap.put("S2", "Schrank 2");
+        rackMap.put("S3", "Schrank 3");
+        rackMap.put("W1", "Würfel 1");
+        rackMap.put("W2", "Würfel 2");
+        rackMap.put("T1", "T 1");
+
+        shelfMap = new HashMap<>();
+        shelfMap.put("KR1", new int[]{6, 7});
+        shelfMap.put("KS1", new int[]{4, 2});
+        shelfMap.put("KS2", new int[]{2, 4});
+        shelfMap.put("KS3", new int[]{6, 2});
+        shelfMap.put("KW1", new int[]{3, 3});
+        shelfMap.put("KW2", new int[]{1, 3});
+        shelfMap.put("KT1", new int[]{1, 4});
+        shelfMap.put("WR1", new int[]{4, 6});
+        shelfMap.put("DS1", new int[]{1, 2});
+        shelfMap.put("PR1", new int[]{5, 5});
+    }
+
     private void setupLayout(){
+        LinearLayoutManager lm = new LinearLayoutManager(ctx);
+        rvTable.setHasFixedSize(true);
+        rvTable.setLayoutManager(lm);
+
         // Get the string array
         String[] countries = getResources().getStringArray(R.array.content_array);
         // Create the adapter and set it to the AutoCompleteTextView
@@ -184,22 +234,13 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void createMaps(){
-        roomMap = new HashMap<>();
-        roomMap.put("M", getString(R.string.all_m));
-        roomMap.put("K", getString(R.string.all_k));
-        roomMap.put("W", getString(R.string.all_w));
-        roomMap.put("D", getString(R.string.all_d));
-        roomMap.put("P", getString(R.string.all_p));
-    }
-
     private int getPixelColor(int x, int y){
         resultImage.setDrawingCacheEnabled(true);
         Bitmap hotspots = Bitmap.createBitmap(resultImage.getDrawingCache());
         resultImage.setDrawingCacheEnabled(false);
         return hotspots.getPixel(x, y);
     }
-
+/*
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         //check if any chest is selected
@@ -207,7 +248,7 @@ public class MainActivity extends AppCompatActivity {
             int[] viewCoords;
             int imageX2, imageY2;
             float touchX, touchY;
-            ArrayList<String> resultChest;
+            Chest resultChest;
             Intent intent;
 
             viewCoords = new int[2];
@@ -225,40 +266,39 @@ public class MainActivity extends AppCompatActivity {
                 if(getPixelColor(imageX2, imageY2) == -14781187) {
                     resultChest = resultChests.get(clickableChestID);
                     intent = new Intent(ctx, rackPopupActivity.class);
-                    intent.putExtra("rackName", resultChest.get(2));
-                    intent.putExtra("roomName", resultChest.get(1));
-                    intent.putExtra("rackX", resultChest.get(3));
-                    intent.putExtra("rackY", resultChest.get(4));
+                    intent.putExtra("rackName", resultChest.shelfShort);
+                    intent.putExtra("roomName", resultChest.roomShort);
+                    intent.putExtra("rackX", resultChest.coords[0]);
+                    intent.putExtra("rackY", resultChest.coords[0]);
 
                     activity.startActivity(intent);
                 }
             }
         }
         return true;
-    }
+    }*/
 
-    private void visualizeChest(int chestId){
+    private void visualizeChest(Chest chest){
         String rack, imageName;
         int imageId;
 
-        rack = resultChests.get(chestId).get(2);
-        imageName = resultChests.get(chestId).get(1).toLowerCase() + "_" + rack.toLowerCase();
+        imageName = chest.getImageName();
         imageId = getResources().getIdentifier(imageName, "drawable", getPackageName());
 
         resultImage.setImageResource(imageId);
-        roomName.setText(roomMap.get(resultChests.get(chestId).get(1)));
+        roomName.setText(chest.roomLong);
 
-        clickableChestID = chestId;
+        //clickableChestID = chestId;
     }
 
     private void clearAll(){
         resultImage.setImageDrawable(null);
         roomName.setText("");
         resultChests = new ArrayList<>();
-        clickableChestID = -1;
+        //clickableChestID = -1;
 
-        while (resultTable.getChildCount() > 1)
-            resultTable.removeView(resultTable.getChildAt(resultTable.getChildCount() - 1));
+        //while (resultTable.getChildCount() > 1)
+        //    resultTable.removeView(resultTable.getChildAt(resultTable.getChildCount() - 1));
     }
 
     private void showNewFeature(){
@@ -297,6 +337,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void processData(int mode, JSONObject[] resultArray){
+        //ArrayList<Chest> chests = new ArrayList<>();
+
         try {
             int count, length;
             count = 0;
@@ -312,6 +354,7 @@ public class MainActivity extends AppCompatActivity {
                 }else if(mode == 2){
                     resultImage.setVisibility(View.GONE);
                 }
+                /*
                 for (JSONObject chest : resultArray) {
                     resultChest = new ArrayList<>();
 
@@ -329,14 +372,23 @@ public class MainActivity extends AppCompatActivity {
                 //if the result is exactly one chest, display it
                 if (count == 1 && mode == 1) {
                     visualizeChest(0);
+                }*/
+                resultChests = new ArrayList<>();
+                for (JSONObject chest : resultArray) {
+                    resultChests.add(new Chest(chest.getString("content"), chest.getString("room"), chest.getString("rack"), chest.getString("X"), chest.getString("Y"), roomMap.get(chest.getString("room")), rackMap.get(chest.getString("rack"))));
                 }
+                rvAdapter = new MyRecyclerViewAdapter(ctx, resultChests);
+                //sets in this file implemented clickListener for each row
+                rvAdapter.setClickListener(this);
+                rvTable.setAdapter(rvAdapter);
+                rvAdapter.notifyDataSetChanged();
             }
         }catch (Exception e){
             Toast.makeText(ctx, e.toString() + " in processData", LENGTH_LONG).show();
             Log.d("error", e.toString() + " in processData");
         }
     }
-
+/*
     private void addToTable(ArrayList<String> chest, int tag){
         TableRow tr = new TableRow(ctx);
 
@@ -371,7 +423,7 @@ public class MainActivity extends AppCompatActivity {
         }
         resultTable.addView(tr);
     }
-
+*/
     private void jsonRequest(final int mode){
         String url = "";
         // Instantiate the RequestQueue.
@@ -493,7 +545,7 @@ public class MainActivity extends AppCompatActivity {
 
         view.clearFocus();
     }
-
+/*
     public void onTableClick(View v){
         if(allShowing){
             backWasShown = true;
@@ -510,8 +562,8 @@ public class MainActivity extends AppCompatActivity {
         visualizeChest(tag);
 
         markTableRow(tag);
-    }
-
+    }*/
+/*
     private void markTableRow(int tag){
         TableRow tr;
         LinearLayout ll;
@@ -526,7 +578,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
-    }
+    }*/
 
     private void createTour(){
         input.setText(getString(R.string.tour_gips));
@@ -545,8 +597,8 @@ public class MainActivity extends AppCompatActivity {
         sequence.addSequenceItem(searchBtn,
                 getString(R.string.tour_searchbutton), getString(R.string.all_got));
 
-        sequence.addSequenceItem(resultTable,
-                getString(R.string.tour_table), getString(R.string.all_got));
+        //sequence.addSequenceItem(resultTable,
+        //        getString(R.string.tour_table), getString(R.string.all_got));
 
         sequence.addSequenceItem(resultImage,
                 getString(R.string.tour_image), getString(R.string.all_got));
@@ -608,6 +660,140 @@ public class MainActivity extends AppCompatActivity {
         editor.apply();
     }
 
+    private void showRoomImage(Chest chest, int pos){
+        final ImageView ivRoom;
+        final TextView tvTitle;
+        final Button btnClose;
+        // get prompts.xml view
+        LayoutInflater li = LayoutInflater.from(ctx);
+        final View promptsView = li.inflate(R.layout.activity_image_popup, null);
+
+        final PopupWindow pw = new PopupWindow(new ContextThemeWrapper(MainActivity.this, R.style.popupTheme));
+
+        ivRoom  = promptsView.findViewById(R.id.iv_room);
+        tvTitle = promptsView.findViewById(R.id.tv_img_title);
+        int imageId = getResources().getIdentifier(chest.getImageName(), "drawable", getPackageName());
+
+        ivRoom.setImageResource(imageId);
+
+        pw.setContentView(promptsView);
+
+        tvTitle.setText(getString(R.string.all_location_concat, chest.roomLong, chest.shelfLong));
+        btnClose = promptsView.findViewById(R.id.btn_img_close);
+        btnClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                pw.dismiss();
+            }
+        });
+
+        pw.setOutsideTouchable(true);
+        pw.setFocusable(true);
+        pw.showAtLocation(this.rvTable.getChildAt(pos), Gravity.CENTER, 0, 0);
+    }
+
+    private void showShelf(Chest chest, int pos){
+        TextView tv;
+        final TextView tvTitle;
+        final Button btnClose;
+        int rowCount, colCount, x ,y;
+        LayoutInflater li = LayoutInflater.from(ctx);
+        View promptsView = li.inflate(R.layout.activity_shelf_popup, null);
+
+        //AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(new ContextThemeWrapper(MainActivity.this, R.style.popupTheme));
+
+        final PopupWindow pw = new PopupWindow(new ContextThemeWrapper(MainActivity.this, R.style.popupTheme));
+
+        // set prompts.xml to alertdialog builder
+        //alertDialogBuilder.setView(promptsView);
+        pw.setContentView(promptsView);
+
+        final TableLayout tlShelf = promptsView.findViewById(R.id.tl_shelf);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            rowCount = Objects.requireNonNull(shelfMap.get(chest.locationToString()), "shelf in the specific room not found")[0];
+            colCount = Objects.requireNonNull(shelfMap.get(chest.locationToString()), "shelf in the specific room not found")[1];
+        }else{
+            rowCount = shelfMap.get(chest.locationToString())[0];
+            colCount = shelfMap.get(chest.locationToString())[1];
+        }
+        x = chest.coords[0];
+        y = chest.coords[1];
+
+        //add top row
+        TableRow header = new TableRow(ctx);
+        TextView topLeft = new TextView(ctx);
+        topLeft.setText("");
+        if(Build.VERSION.SDK_INT > 16)
+            topLeft.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+        topLeft.setTextSize(18);
+        header.addView(topLeft);
+        for(int col = 1; col < colCount; col ++){
+            tv = new TextView(ctx);
+            tv.setText(String.valueOf(col));
+            if(Build.VERSION.SDK_INT > 16)
+                tv.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+            tv.setTextSize(18);
+            header.addView(tv);
+        }
+        tlShelf.addView(header);
+
+        for(int row = rowCount; row >= 0; row--){
+            TableRow tr = new TableRow(ctx);
+            for(int col = 0; col < colCount; col ++){
+                tv = new TextView(ctx);
+                if(col == 0){
+                    //left column
+                    tv.setText(String.valueOf(row));
+                }else {
+                    if (row == y && col == x) {
+                        tv.setText(chest.coordsToString());
+                    } else {
+                        tv.setText("");
+                    }
+                    tv.setBackgroundResource(R.drawable.back);
+                }
+                if(Build.VERSION.SDK_INT > 16)
+                    tv.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+                tv.setTextSize(18);
+                tr.addView(tv);
+            }
+            tlShelf.addView(tr);
+        }
+
+
+        // set dialog message
+        /*
+        alertDialogBuilder
+                .setCancelable(false)
+                .setPositiveButton("OK",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                dialog.dismiss();
+                            }
+                        })
+        .setTitle(chest.shelfLong);
+*/
+        // create alert dialog
+        //AlertDialog alertDialog = alertDialogBuilder.create();
+
+        // show it
+        //alertDialog.show();
+        tvTitle = promptsView.findViewById(R.id.tv_shelf_title);
+        tvTitle.setText(getString(R.string.all_location_concat, chest.roomLong, chest.shelfLong));
+        btnClose = promptsView.findViewById(R.id.btn_shelf_close);
+        btnClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                pw.dismiss();
+            }
+        });
+
+        pw.setOutsideTouchable(true);
+        pw.setFocusable(true);
+        pw.showAtLocation(this.rvTable.getChildAt(pos), Gravity.CENTER, 0, 0);
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Random rand = new Random();
@@ -617,16 +803,14 @@ public class MainActivity extends AppCompatActivity {
         }
         knolleIconId = newId;
         // Handle item selection
-        switch (item.getItemId()) {
-            case R.id.knolleIcon:
-                //change Knolle icon to a random one
-                mOptionsMenu.findItem(R.id.knolleIcon).setIcon(knolleIcons[knolleIconId]);
-                return true;
-            case R.id.connection:
-                toggleConnection();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+        if(item.getItemId() == R.id.knolleIcon){
+            mOptionsMenu.findItem(R.id.knolleIcon).setIcon(knolleIcons[knolleIconId]);
+            return true;
+        }else if(item.getItemId() == R.id.connection){
+            toggleConnection();
+            return true;
+        }else{
+            return super.onOptionsItemSelected(item);
         }
     }
 
@@ -638,5 +822,23 @@ public class MainActivity extends AppCompatActivity {
         }else {
             super.onBackPressed();
         }
+    }
+
+    @Override
+    public void onItemClick(View view, int position) {
+        //Toast.makeText(ctx, "You clicked " + rvAdapter.getItem(position).content + " on row number " + position, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(ctx, "You clicked " + view.getId(), Toast.LENGTH_SHORT).show();
+
+        if(view.getId() == R.id.ll_roomshelf || view.getId() == R.id.tv_storage || view.getId() == R.id.tv_shelf) {
+            //Toast.makeText(ctx, "You clicked " + view.getId() + " untilTv", Toast.LENGTH_SHORT).show();
+            //startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(timetableURL+rvAdapter.getItem(position).timetableID)));
+            showRoomImage(resultChests.get(position), position);
+        }else if(view.getId()== R.id.tv_coords){
+                //Toast.makeText(ctx, "You clicked " + view.getId() + " occupiedTv", Toast.LENGTH_SHORT).show();
+                //startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(timetableURL+rvAdapter.getItem(position).timetableID)));
+                showShelf(resultChests.get(position), position);
+
+        }
+
     }
 }

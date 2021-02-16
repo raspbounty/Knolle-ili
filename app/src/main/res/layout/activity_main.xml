@@ -55,6 +55,13 @@
         <ScrollView
             android:layout_width="fill_parent"
             android:layout_height="wrap_content">
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvOutput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:listitem="@layout/recyclerview_row">
+            </androidx.recyclerview.widget.RecyclerView>
+            <!--
             <TableLayout
                 android:id="@+id/resultTable"
                 android:layout_width="fill_parent"
@@ -83,6 +90,7 @@
                         android:textAlignment="center"/>
                 </TableRow>
             </TableLayout>
+            -->
         </ScrollView>
         <TextView
             android:id="@+id/roomName"
