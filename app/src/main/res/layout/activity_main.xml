@@ -5,8 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/rl"
-    tools:context=".MainActivity"
-    android:background="#f5f5f5">
+    tools:context=".MainActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -25,7 +24,8 @@
                 android:layout_width="fill_parent"
                 android:layout_height="match_parent"
                 android:imeOptions="actionDone"
-                android:inputType="text" />
+                android:inputType="text"
+                android:textColorHint="@color/colorSecondaryText"/>
                 <Button
                     android:id="@+id/calc_clear_txt_Prise"
                     android:layout_width="20dp"

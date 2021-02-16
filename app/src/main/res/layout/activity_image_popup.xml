@@ -14,6 +14,8 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
+        android:textSize="15sp"
+        android:textColor="@color/colorText"
         />
 
     <ImageView
@@ -36,5 +38,7 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         android:id="@+id/btn_img_close"
+        android:textSize="12sp"
+        style="@style/Widget.AppCompat.Button.Colored"
         />
 </androidx.constraintlayout.widget.ConstraintLayout>
