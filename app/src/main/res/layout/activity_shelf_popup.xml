@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:padding="5dp">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_shelf_title"
+        app:layout_constraintBottom_toTopOf="@id/tl_shelf"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        />
+    <TableLayout
+        android:stretchColumns="*"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/tl_shelf"
+        app:layout_constraintBottom_toTopOf="@id/btn_shelf_close"
+        app:layout_constraintTop_toBottomOf="@id/tv_shelf_title"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:background="@color/colorPrimaryDark"
+        />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Close"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tl_shelf"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:id="@+id/btn_shelf_close"
+        />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
