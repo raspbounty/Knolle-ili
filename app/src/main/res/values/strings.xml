@@ -180,5 +180,5 @@
     <string name="all_noLocalJson">Damit du auch offline Ergebnisse bekommst, musst du einmal im Netz auf Alle Anzeigen drücken</string>
     <string name="tour_connection">Der offline Modus kann jetzt manuell aktiviert oder deaktiviert werden</string>
     <string name="all_update_note">Neue Funktionen</string>
-    <string name="all_location_concat" translatable="false">%1$s in %2$s</string>
+    <string name="all_location_concat">%1$s im %2$s</string>
 </resources>

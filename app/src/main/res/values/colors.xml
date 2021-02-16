@@ -5,5 +5,7 @@
     <color name="colorAccent">#FF4081</color>
     <color name="colorBackground">#121212</color>
     <color name="colorBackgroundFloating">#00424242</color>
-    <color name="colorSurface">#3F51B5</color>
+    <color name="colorSurface">#242424</color>
+    <color name="colorSecondaryText">#B3FFFFFF</color>
+    <color name="colorText">#FFFFFF</color>
 </resources>

@@ -234,63 +234,6 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         });
     }
 
-    private int getPixelColor(int x, int y){
-        resultImage.setDrawingCacheEnabled(true);
-        Bitmap hotspots = Bitmap.createBitmap(resultImage.getDrawingCache());
-        resultImage.setDrawingCacheEnabled(false);
-        return hotspots.getPixel(x, y);
-    }
-/*
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        //check if any chest is selected
-        if(clickableChestID != -1) {
-            int[] viewCoords;
-            int imageX2, imageY2;
-            float touchX, touchY;
-            Chest resultChest;
-            Intent intent;
-
-            viewCoords = new int[2];
-            resultImage.getLocationOnScreen(viewCoords);
-
-            touchX = event.getX();
-            touchY = event.getY();
-
-            imageX2 = (int) ((touchX - viewCoords[0]));
-            imageY2 = (int) ((touchY - viewCoords[1]));
-
-            //check if clicked element is resultImage
-            if((imageX2>0 && imageX2<resultImage.getWidth()) && (imageY2>0 && imageY2<resultImage.getHeight())) {
-                //check if clicked pixel is blue (in rgb 30116253, in Color -14781187)
-                if(getPixelColor(imageX2, imageY2) == -14781187) {
-                    resultChest = resultChests.get(clickableChestID);
-                    intent = new Intent(ctx, rackPopupActivity.class);
-                    intent.putExtra("rackName", resultChest.shelfShort);
-                    intent.putExtra("roomName", resultChest.roomShort);
-                    intent.putExtra("rackX", resultChest.coords[0]);
-                    intent.putExtra("rackY", resultChest.coords[0]);
-
-                    activity.startActivity(intent);
-                }
-            }
-        }
-        return true;
-    }*/
-
-    private void visualizeChest(Chest chest){
-        String rack, imageName;
-        int imageId;
-
-        imageName = chest.getImageName();
-        imageId = getResources().getIdentifier(imageName, "drawable", getPackageName());
-
-        resultImage.setImageResource(imageId);
-        roomName.setText(chest.roomLong);
-
-        //clickableChestID = chestId;
-    }
-
     private void clearAll(){
         resultImage.setImageDrawable(null);
         roomName.setText("");
@@ -354,25 +297,6 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
                 }else if(mode == 2){
                     resultImage.setVisibility(View.GONE);
                 }
-                /*
-                for (JSONObject chest : resultArray) {
-                    resultChest = new ArrayList<>();
-
-                    resultChest.add(chest.getString("content"));
-                    resultChest.add(chest.getString("room"));
-                    resultChest.add(chest.getString("rack"));
-                    resultChest.add(chest.getString("X"));
-                    resultChest.add(chest.getString("Y"));
-
-                    addToTable(resultChest, count);
-                    resultChests.add(resultChest);
-                    count++;
-                }
-
-                //if the result is exactly one chest, display it
-                if (count == 1 && mode == 1) {
-                    visualizeChest(0);
-                }*/
                 resultChests = new ArrayList<>();
                 for (JSONObject chest : resultArray) {
                     resultChests.add(new Chest(chest.getString("content"), chest.getString("room"), chest.getString("rack"), chest.getString("X"), chest.getString("Y"), roomMap.get(chest.getString("room")), rackMap.get(chest.getString("rack"))));
@@ -388,42 +312,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
             Log.d("error", e.toString() + " in processData");
         }
     }
-/*
-    private void addToTable(ArrayList<String> chest, int tag){
-        TableRow tr = new TableRow(ctx);
 
-        for(int i = 0; i < 5; i++) {
-            TextView tv = new TextView(ctx);
-            LinearLayout ll = new LinearLayout(ctx);
-
-            ll.setOrientation(LinearLayout.HORIZONTAL);
-            ll.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.MATCH_PARENT));
-
-            if(i == 1){
-                tv.setText(roomMap.get(chest.get(i)));
-            }else {
-                tv.setText(chest.get(i));
-            }
-            tv.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    onTableClick(v);
-                }
-            });
-
-            tv.setTag(tag);
-            if(Build.VERSION.SDK_INT > 16)
-                tv.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-            tv.setBackgroundResource(R.drawable.back);
-            tv.setGravity(Gravity.CENTER);
-            tv.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
-
-            ll.addView(tv);
-            tr.addView(ll);
-        }
-        resultTable.addView(tr);
-    }
-*/
     private void jsonRequest(final int mode){
         String url = "";
         // Instantiate the RequestQueue.
@@ -545,40 +434,6 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
 
         view.clearFocus();
     }
-/*
-    public void onTableClick(View v){
-        if(allShowing){
-            backWasShown = true;
-        }
-        int tag = (int) v.getTag();
-        if (resultImage.getVisibility() == View.GONE) {
-            ArrayList<String> resultChest = resultChests.get(tag);
-            clearAll();
-            tag = 0;
-            resultChests.add(resultChest);
-            addToTable(resultChest, tag);
-            resultImage.setVisibility(View.VISIBLE);
-        }
-        visualizeChest(tag);
-
-        markTableRow(tag);
-    }*/
-/*
-    private void markTableRow(int tag){
-        TableRow tr;
-        LinearLayout ll;
-        for(int j = 1; j < resultTable.getChildCount(); j++) {
-            tr = (TableRow)resultTable.getChildAt(j);
-            for (int i = 0; i < tr.getChildCount(); i++) {
-                ll = (LinearLayout) tr.getChildAt(i);
-                if(j == tag+1) {
-                    ll.getChildAt(0).setBackgroundResource(R.drawable.back_marked);
-                }else{
-                    ll.getChildAt(0).setBackgroundResource(R.drawable.back);
-                }
-            }
-        }
-    }*/
 
     private void createTour(){
         input.setText(getString(R.string.tour_gips));
@@ -678,7 +533,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
 
         pw.setContentView(promptsView);
 
-        tvTitle.setText(getString(R.string.all_location_concat, chest.roomLong, chest.shelfLong));
+        tvTitle.setText(getString(R.string.all_location_concat, chest.shelfLong, chest.roomLong));
         btnClose = promptsView.findViewById(R.id.btn_img_close);
         btnClose.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -700,12 +555,9 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         LayoutInflater li = LayoutInflater.from(ctx);
         View promptsView = li.inflate(R.layout.activity_shelf_popup, null);
 
-        //AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(new ContextThemeWrapper(MainActivity.this, R.style.popupTheme));
 
         final PopupWindow pw = new PopupWindow(new ContextThemeWrapper(MainActivity.this, R.style.popupTheme));
 
-        // set prompts.xml to alertdialog builder
-        //alertDialogBuilder.setView(promptsView);
         pw.setContentView(promptsView);
 
         final TableLayout tlShelf = promptsView.findViewById(R.id.tl_shelf);
@@ -723,31 +575,20 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         //add top row
         TableRow header = new TableRow(ctx);
         TextView topLeft = new TextView(ctx);
-        topLeft.setText("");
-        if(Build.VERSION.SDK_INT > 16)
-            topLeft.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-        topLeft.setTextSize(18);
-        header.addView(topLeft);
-        for(int col = 1; col < colCount; col ++){
-            tv = new TextView(ctx);
-            tv.setText(String.valueOf(col));
-            if(Build.VERSION.SDK_INT > 16)
-                tv.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-            tv.setTextSize(18);
-            header.addView(tv);
-        }
-        tlShelf.addView(header);
+
 
         for(int row = rowCount; row >= 0; row--){
             TableRow tr = new TableRow(ctx);
             for(int col = 0; col < colCount; col ++){
                 tv = new TextView(ctx);
                 if(col == 0){
-                    //left column
+                    //y-axis legend
                     tv.setText(String.valueOf(row));
+                    tv.setTextColor(getResources().getColor(R.color.colorSecondaryText));
                 }else {
                     if (row == y && col == x) {
                         tv.setText(chest.coordsToString());
+                        tv.setTextColor(getResources().getColor(R.color.colorPrimary));
                     } else {
                         tv.setText("");
                     }
@@ -761,26 +602,25 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
             tlShelf.addView(tr);
         }
 
+        //create x-axis legend
+        topLeft.setText("");
+        if(Build.VERSION.SDK_INT > 16)
+            topLeft.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+        topLeft.setTextSize(18);
+        header.addView(topLeft);
+        for(int col = 1; col < colCount; col ++){
+            tv = new TextView(ctx);
+            tv.setText(String.valueOf(col));
+            if(Build.VERSION.SDK_INT > 16)
+                tv.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+            tv.setTextSize(18);
+            tv.setTextColor(getResources().getColor(R.color.colorSecondaryText));
+            header.addView(tv);
+        }
+        tlShelf.addView(header);
 
-        // set dialog message
-        /*
-        alertDialogBuilder
-                .setCancelable(false)
-                .setPositiveButton("OK",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,int id) {
-                                dialog.dismiss();
-                            }
-                        })
-        .setTitle(chest.shelfLong);
-*/
-        // create alert dialog
-        //AlertDialog alertDialog = alertDialogBuilder.create();
-
-        // show it
-        //alertDialog.show();
         tvTitle = promptsView.findViewById(R.id.tv_shelf_title);
-        tvTitle.setText(getString(R.string.all_location_concat, chest.roomLong, chest.shelfLong));
+        tvTitle.setText(getString(R.string.all_location_concat, chest.shelfLong, chest.roomLong));
         btnClose = promptsView.findViewById(R.id.btn_shelf_close);
         btnClose.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -815,27 +655,13 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
     }
 
     @Override
-    public void onBackPressed() {
-        if(backWasShown){
-            backWasShown = false;
-            performRead();
-        }else {
-            super.onBackPressed();
-        }
-    }
-
-    @Override
     public void onItemClick(View view, int position) {
         //Toast.makeText(ctx, "You clicked " + rvAdapter.getItem(position).content + " on row number " + position, Toast.LENGTH_SHORT).show();
         //Toast.makeText(ctx, "You clicked " + view.getId(), Toast.LENGTH_SHORT).show();
 
         if(view.getId() == R.id.ll_roomshelf || view.getId() == R.id.tv_storage || view.getId() == R.id.tv_shelf) {
-            //Toast.makeText(ctx, "You clicked " + view.getId() + " untilTv", Toast.LENGTH_SHORT).show();
-            //startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(timetableURL+rvAdapter.getItem(position).timetableID)));
             showRoomImage(resultChests.get(position), position);
         }else if(view.getId()== R.id.tv_coords){
-                //Toast.makeText(ctx, "You clicked " + view.getId() + " occupiedTv", Toast.LENGTH_SHORT).show();
-                //startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(timetableURL+rvAdapter.getItem(position).timetableID)));
                 showShelf(resultChests.get(position), position);
 
         }
