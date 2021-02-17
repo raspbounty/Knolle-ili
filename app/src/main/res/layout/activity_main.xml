@@ -52,6 +52,32 @@
                 android:textSize="12sp"
                 style="@style/Widget.AppCompat.Button.Colored"/>
         </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/all_content"
+            android:layout_weight="1"
+            android:textSize="15sp"
+            android:gravity="center"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/all_room"
+            android:layout_weight="1"
+            android:textSize="15sp"
+            android:gravity="center"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/all_position"
+            android:layout_weight="1"
+            android:textSize="15sp"
+            android:gravity="center"/>
+    </LinearLayout>
         <ScrollView
             android:layout_width="fill_parent"
             android:layout_height="wrap_content">
@@ -92,21 +118,6 @@
             </TableLayout>
             -->
         </ScrollView>
-        <TextView
-            android:id="@+id/roomName"
-            android:textSize="20sp"
-            android:textAlignment="center"
-            android:gravity="center_horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textStyle="bold"/>
-        <ImageView
-            android:contentDescription="s"
-            android:id="@+id/resultImage"
-            android:scaleType="fitCenter"
-            android:layout_gravity="center"
-            android:layout_width="200dp"
-            android:layout_height="200dp"/>
 
     </LinearLayout>
 

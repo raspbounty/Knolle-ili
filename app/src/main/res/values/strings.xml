@@ -163,7 +163,15 @@
     <string name="all_w" translatable="false">Wappenraum</string>
     <string name="all_d" translatable="false">Dachgiebel</string>
     <string name="all_p" translatable="false">Kabuff</string>
+    <string name="all_r1">Regal 1</string>
+    <string name="all_s1">Schrank 1</string>
+    <string name="all_s2">Schrank 2</string>
+    <string name="all_s3">Schrank 3</string>
+    <string name="all_w1">Würfel 1</string>
+    <string name="all_w2">Würfel 2</string>
+    <string name="all_t1">Trophäenbrett 1</string>
     <string name="all_error">Ups, das sollte nicht passieren</string>
+    <string name="all_shelf_not_found">Das Regal %1$s kenne ich nicht, sag bitte Luca Bescheid.</string>
     <string name="all_notFound">leider nichts gefunden, versuche einen anderen Begriff</string>
     <string name="all_networkError">Probleme mit der Serververbindung, versuche es im offline Modus</string>
     <string name="all_gips" translatable="false">z.B. Gips</string>
@@ -181,4 +189,5 @@
     <string name="tour_connection">Der offline Modus kann jetzt manuell aktiviert oder deaktiviert werden</string>
     <string name="all_update_note">Neue Funktionen</string>
     <string name="all_location_concat">%1$s im %2$s</string>
+    <string name="all_position">Position</string>
 </resources>
