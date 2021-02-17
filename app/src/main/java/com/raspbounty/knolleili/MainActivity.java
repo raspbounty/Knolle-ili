@@ -54,9 +54,11 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Random;
 
@@ -71,17 +73,18 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
     private RecyclerView rvTable;
     private Context ctx;
     private HashMap<String, String> roomMap, rackMap;
-    private TextView roomName;
+    private String[] suggestContentList;
     private ArrayList<Chest> resultChests;
     private int knolleIconId;
     private Menu mOptionsMenu;
     private int[] knolleIcons;
-    private boolean connection;
+    private boolean connection, needToUpdateSuggestions;
     private JSONArray localJSONArray;
     private SharedPreferences sharedPref;
     private SharedPreferences.Editor editor;
     private HashMap<String, int[]> shelfSizeMap;
     private MyRecyclerViewAdapter rvAdapter;
+    private String stringDelimiter = ";;del;;";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,10 +107,18 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
             Calendar now = Calendar.getInstance();
             editor = sharedPref.edit();
             editor.putLong("lastread", now.getTime().getTime());
-            editor.apply();
-        }
 
-        getLocalJSON();
+            editor.apply();
+            needToUpdateSuggestions=true;
+
+        }else{
+            needToUpdateSuggestions = false;
+            getLocalJSON();
+
+            String temp = sharedPref.getString("suggestContentList", "");
+            suggestContentList = temp.split(stringDelimiter);
+
+        }
 
         knolleIcons = new int[7];
         knolleIcons[0] = R.mipmap.ic_weihnachts_knolle;
@@ -132,8 +143,6 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
             editor.putBoolean("showcasePlayed", true);
             editor.apply();
         }
-
-        //showNewFeature();
     }
 
     @Override
@@ -212,10 +221,15 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         rvTable.setLayoutManager(lm);
 
         // Get the string array
-        String[] countries = getResources().getStringArray(R.array.content_array);
+        //String[] countries = getResources().getStringArray(R.array.content_array);
         // Create the adapter and set it to the AutoCompleteTextView
+
+        if(suggestContentList == null){
+           suggestContentList = getResources().getStringArray(R.array.content_array);
+        }
+
         ArrayAdapter<String> adapter =
-                new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, countries);
+                new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, suggestContentList);
         input.setAdapter(adapter);
 
         //add an listener for the click on the done button
@@ -371,6 +385,11 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
                                     }
                                     if(mode == 2){
                                         localJSONArray = arrJson;
+
+                                        if(needToUpdateSuggestions){
+                                            updateSuggestions();
+                                            needToUpdateSuggestions = false;
+                                        }
                                     }
                                     //clearAll();
                                     processData(mode, resultArray);
@@ -468,6 +487,42 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
+        }
+    }
+
+    private void updateSuggestions(){
+        //get suggestionArray from localJsonArray
+        if(localJSONArray != null){
+            //convert localJSONArray to type JSONObject[]
+            JSONObject chest = new JSONObject();
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < localJSONArray.length(); i++) {
+                try {
+                    chest = localJSONArray.getJSONObject(i);
+                    sb.append(chest.getString("content").replaceAll("\\r\\n", stringDelimiter));
+                    sb.append(stringDelimiter);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+            suggestContentList = sb.toString().split(stringDelimiter);
+            //remove duplicates
+            suggestContentList =  new HashSet<String>(Arrays.asList(suggestContentList)).toArray(new String[0]);
+
+            sb = new StringBuilder();
+            for (String item: suggestContentList) {
+                sb.append(item);
+                sb.append(stringDelimiter);
+            }
+
+            editor = sharedPref.edit();
+            editor.putString("suggestContentList", sb.toString());
+            editor.apply();
+
+            ArrayAdapter<String> adapter =
+                    new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, suggestContentList);
+            input.setAdapter(adapter);
 
         }
     }
