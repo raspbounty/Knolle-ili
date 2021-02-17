@@ -5,6 +5,8 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.graphics.drawable.shapes.RectShape;
+import android.graphics.drawable.shapes.Shape;
 import android.os.Build;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -60,6 +62,7 @@ import java.util.Random;
 
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
 import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
+import uk.co.deanwild.materialshowcaseview.shape.RectangleShape;
 
 import static android.widget.Toast.LENGTH_LONG;
 
@@ -78,6 +81,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
     private SharedPreferences sharedPref;
     private SharedPreferences.Editor editor;
     private HashMap<String, int[]> shelfSizeMap;
+    private MyRecyclerViewAdapter rvAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -119,16 +123,16 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         clearAll();
         createMaps();
 
-        performRead();
 
-/*
-        Boolean showCasePlayed = sharedPref.getBoolean("showcasePlayed", false);
+
+        boolean showCasePlayed = sharedPref.getBoolean("showcasePlayed", false);
         if(!showCasePlayed) {
             createTour();
+            editor = sharedPref.edit();
             editor.putBoolean("showcasePlayed", true);
             editor.apply();
         }
-*/
+
         //showNewFeature();
     }
 
@@ -328,7 +332,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
                         Toast.makeText(ctx, getResources().getString(R.string.all_shelf_not_found, shelfroom), LENGTH_LONG).show();
                     }
                 }
-                MyRecyclerViewAdapter rvAdapter = new MyRecyclerViewAdapter(ctx, resultChests);
+                rvAdapter = new MyRecyclerViewAdapter(ctx, resultChests);
                 //sets in this file implemented clickListener for each row
                 rvAdapter.setClickListener(this);
                 rvTable.setAdapter(rvAdapter);
@@ -482,7 +486,10 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         performSearch();
         Button searchBtn = findViewById(R.id.searchBtn);
         ShowcaseConfig config = new ShowcaseConfig();
-        config.setDelay(500); // half second between each showcase view
+        config.setDelay(300); // half second between each showcase view
+        RectangleShape rect = new RectangleShape(200, 200);
+        rect.setAdjustToTarget(true);
+        config.setShape(rect);
 
         MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(this);
 
@@ -494,12 +501,10 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         sequence.addSequenceItem(searchBtn,
                 getString(R.string.tour_searchbutton), getString(R.string.all_got));
 
-        //sequence.addSequenceItem(resultTable,
-        //        getString(R.string.tour_table), getString(R.string.all_got));
-
         sequence.addSequenceItem(findViewById(R.id.readBtn),
                 getString(R.string.tour_readbutton), getString(R.string.all_got));
 
+        sequence.addSequenceItem(rvTable, getString(R.string.tour_rvtable), getString(R.string.all_got));
         sequence.start();
     }
 
@@ -548,7 +553,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
             saveLocalCopy();
             mOptionsMenu.findItem(R.id.connection).setIcon(R.drawable.ic_connection_enabled);
         }
-
+        editor = sharedPref.edit();
         editor.putBoolean("connection", connection);
         editor.apply();
     }

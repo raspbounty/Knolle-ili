@@ -42,7 +42,7 @@
                 android:onClick="searchClick"
                 android:id="@+id/searchBtn"
                 android:textSize="12sp"
-                style="@style/Widget.AppCompat.Button.Colored"/>
+                style="@style/BtnTheme"/>
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
@@ -50,7 +50,7 @@
                 android:onClick="readClick"
                 android:id="@+id/readBtn"
                 android:textSize="12sp"
-                style="@style/Widget.AppCompat.Button.Colored"/>
+                style="@style/BtnTheme"/>
         </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"

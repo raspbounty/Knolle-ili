@@ -37,7 +37,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         android:id="@+id/btn_shelf_close"
         android:textSize="12sp"
-        style="@style/Widget.AppCompat.Button.Colored"
+        style="@style/BtnTheme"
         />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
