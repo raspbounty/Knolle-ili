@@ -2,10 +2,18 @@
 <resources>
     <string name="app_name">Knolle ili</string>
     <string name="all_search">search</string>
-    <string name="all_content">content</string>
-    <string name="all_room">room</string>
+    <string name="all_content">Content</string>
+    <string name="all_room">Room</string>
     <string name="all_rack">rack</string>
+    <string name="all_r1">Rack 1</string>
+    <string name="all_s1">Closet 1</string>
+    <string name="all_s2">Closet 2</string>
+    <string name="all_s3">Closet 3</string>
+    <string name="all_w1">Cube 1</string>
+    <string name="all_w2">Cube 2</string>
+    <string name="all_t1">Trophy Board 1</string>
     <string name="all_error">Something went wrong</string>
+    <string name="all_shelf_not_found">I do not know the shelf %1$s please tell Luca.</string>
     <string name="all_notFound">nothing found, please try another item</string>
     <string name="all_networkError">Connection Error, try the offline mode</string>
     <string name="all_got">Got It</string>

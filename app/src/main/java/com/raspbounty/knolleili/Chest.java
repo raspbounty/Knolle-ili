@@ -8,11 +8,11 @@ class Chest {
     int [] coords;
 
 
-    public Chest(String mContent, String mRoomShort, String mRackShort, String mX, String mY, String mRoomLong, String mRackLong) {
+    public Chest(String mContent, String mRoomShort, String mRackShort, int mX, int mY, String mRoomLong, String mRackLong) {
         content = mContent;
         roomShort = mRoomShort;
         shelfShort = mRackShort;
-        coords = new int[]{Integer.parseInt(mX), Integer.parseInt(mY.split("\\.")[0])};
+        coords = new int[]{mX, mY};
         roomLong = mRoomLong;
         shelfLong = mRackLong;
     }

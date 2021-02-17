@@ -27,6 +27,7 @@
                 android:id="@+id/tv_content"
                 android:clickable="true"
                 android:focusable="true"
+                android:text="oijjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"
                 android:textColor="@color/colorSecondaryText"/>
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -38,11 +39,13 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
+                        android:layout_weight="1"
                         android:textAlignment="center"
                         android:textSize="15sp"
                         android:textStyle="bold"
                         android:id="@+id/tv_storage"
-                        android:textColor="@color/colorText"/>
+                        android:textColor="@color/colorText"
+                        android:text="ijio"/>
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -51,7 +54,9 @@
                         android:textSize="15sp"
                         android:textStyle="bold"
                         android:id="@+id/tv_shelf"
-                        android:textColor="@color/colorText"/>
+                        android:layout_weight="1"
+                        android:textColor="@color/colorText"
+                        android:text="giuu"/>
                  </LinearLayout>
             <TextView
                 android:layout_width="match_parent"

@@ -4,10 +4,7 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Build;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,7 +20,6 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -48,10 +44,16 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.Random;
@@ -63,42 +65,45 @@ import static android.widget.Toast.LENGTH_LONG;
 
 public class MainActivity extends AppCompatActivity implements MyRecyclerViewAdapter.ItemClickListener{
     private AutoCompleteTextView input;
-    //private TableLayout resultTable;
     private RecyclerView rvTable;
     private Context ctx;
-    private Activity activity;
-    private ImageView resultImage;
     private HashMap<String, String> roomMap, rackMap;
     private TextView roomName;
     private ArrayList<Chest> resultChests;
-    private int clickableChestID, knolleIconId;
+    private int knolleIconId;
     private Menu mOptionsMenu;
     private int[] knolleIcons;
-    private boolean allShowing, backWasShown, connection;
+    private boolean connection;
     private JSONArray localJSONArray;
     private SharedPreferences sharedPref;
     private SharedPreferences.Editor editor;
-    private MyRecyclerViewAdapter rvAdapter;
-    private HashMap<String, int[]> shelfMap;
+    private HashMap<String, int[]> shelfSizeMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         input = findViewById(R.id.input);
-        //resultTable = findViewById(R.id.resultTable);
         rvTable = findViewById(R.id.rvOutput);
-        resultImage = findViewById(R.id.resultImage);
-        roomName = findViewById(R.id.roomName);
         ctx = getApplicationContext();
-        activity = MainActivity.this;
 
         sharedPref = this.getSharedPreferences("myPrefs", MODE_PRIVATE);
         connection = sharedPref.getBoolean("connection", true);
-        editor = sharedPref.edit();
+
+        Calendar lastMonth = Calendar.getInstance();
+        lastMonth.add(Calendar.MONTH, -1);
+        long lastRead = sharedPref.getLong("lastread", 0);
+
+
+        if(connection && lastRead < lastMonth.getTime().getTime()){
+            performRead();
+            Calendar now = Calendar.getInstance();
+            editor = sharedPref.edit();
+            editor.putLong("lastread", now.getTime().getTime());
+            editor.apply();
+        }
+
         getLocalJSON();
-        allShowing = false;
-        backWasShown = false;
 
         knolleIcons = new int[7];
         knolleIcons[0] = R.mipmap.ic_weihnachts_knolle;
@@ -149,6 +154,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
     @Override
     protected void onPause() {
         super.onPause();
+        editor = sharedPref.edit();
         editor.putBoolean("connection", connection);
         editor.apply();
     }
@@ -162,25 +168,38 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         roomMap.put("P", getString(R.string.all_p));
 
         rackMap = new HashMap<>();
-        rackMap.put("R1", "Regal 1");
-        rackMap.put("S1", "Schrank 1");
-        rackMap.put("S2", "Schrank 2");
-        rackMap.put("S3", "Schrank 3");
-        rackMap.put("W1", "Würfel 1");
-        rackMap.put("W2", "Würfel 2");
-        rackMap.put("T1", "T 1");
+        rackMap.put("R1", getString(R.string.all_r1));
+        rackMap.put("S1", getString(R.string.all_s1));
+        rackMap.put("S2", getString(R.string.all_s2));
+        rackMap.put("S3", getString(R.string.all_s3));
+        rackMap.put("W1", getString(R.string.all_w1));
+        rackMap.put("W2", getString(R.string.all_w2));
+        rackMap.put("T1", getString(R.string.all_t1));
 
-        shelfMap = new HashMap<>();
-        shelfMap.put("KR1", new int[]{6, 7});
-        shelfMap.put("KS1", new int[]{4, 2});
-        shelfMap.put("KS2", new int[]{2, 4});
-        shelfMap.put("KS3", new int[]{6, 2});
-        shelfMap.put("KW1", new int[]{3, 3});
-        shelfMap.put("KW2", new int[]{1, 3});
-        shelfMap.put("KT1", new int[]{1, 4});
-        shelfMap.put("WR1", new int[]{4, 6});
-        shelfMap.put("DS1", new int[]{1, 2});
-        shelfMap.put("PR1", new int[]{5, 5});
+        File file = new File(getDir("data", MODE_PRIVATE), "shelfSizeMap");
+
+        try {
+            ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(file));
+            shelfSizeMap = (HashMap<String, int[]>) inputStream.readObject();
+            inputStream.close();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        if(shelfSizeMap==null) {
+            //some old values if the program cannot get saved values
+            shelfSizeMap = new HashMap<>();
+            shelfSizeMap.put("KR1", new int[]{6, 7});
+            shelfSizeMap.put("KS1", new int[]{4, 2});
+            shelfSizeMap.put("KS2", new int[]{2, 4});
+            shelfSizeMap.put("KS3", new int[]{6, 2});
+            shelfSizeMap.put("KW1", new int[]{3, 3});
+            shelfSizeMap.put("KW2", new int[]{1, 3});
+            shelfSizeMap.put("KT1", new int[]{1, 4});
+            shelfSizeMap.put("WR1", new int[]{4, 6});
+            shelfSizeMap.put("DS1", new int[]{1, 2});
+            shelfSizeMap.put("PR1", new int[]{5, 5});
+        }
     }
 
     private void setupLayout(){
@@ -235,13 +254,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
     }
 
     private void clearAll(){
-        resultImage.setImageDrawable(null);
-        roomName.setText("");
         resultChests = new ArrayList<>();
-        //clickableChestID = -1;
-
-        //while (resultTable.getChildCount() > 1)
-        //    resultTable.removeView(resultTable.getChildAt(resultTable.getChildCount() - 1));
     }
 
     private void showNewFeature(){
@@ -249,6 +262,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
             int versionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
             if (sharedPref.getInt("lastUpdate", 0) != versionCode) {
                 // Commiting in the preferences, that the update was successful.
+                editor = sharedPref.edit();
                 editor.putInt("lastUpdate", versionCode);
                 editor.apply();
 
@@ -280,28 +294,41 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
     }
 
     private void processData(int mode, JSONObject[] resultArray){
-        //ArrayList<Chest> chests = new ArrayList<>();
-
+        String shelfroom;
+        int newX, newY, oldX, oldY;
         try {
-            int count, length;
-            count = 0;
+            int length;
             length = resultArray.length;
-            ArrayList<String> resultChest;
             if(length == 0 && mode == 1){
                 Toast.makeText(ctx, R.string.all_noresult, LENGTH_LONG).show();
             }else if(length  > 5 && mode == 1){
                 Toast.makeText(ctx, R.string.all_toomanyresults, LENGTH_LONG).show();
             }else {
-                if(mode == 1){
-                    resultImage.setVisibility(View.VISIBLE);
-                }else if(mode == 2){
-                    resultImage.setVisibility(View.GONE);
-                }
                 resultChests = new ArrayList<>();
                 for (JSONObject chest : resultArray) {
-                    resultChests.add(new Chest(chest.getString("content"), chest.getString("room"), chest.getString("rack"), chest.getString("X"), chest.getString("Y"), roomMap.get(chest.getString("room")), rackMap.get(chest.getString("rack"))));
+                    shelfroom = chest.getString("room") + chest.getString("rack");
+                    newX = Integer.parseInt(chest.getString("X"));
+                    newY = Integer.parseInt(chest.getString("Y").split("\\.")[0]);
+                    resultChests.add(new Chest(chest.getString("content"), chest.getString("room"), chest.getString("rack"), newX, newY, roomMap.get(chest.getString("room")), rackMap.get(chest.getString("rack"))));
+                    if (shelfSizeMap.containsKey(shelfroom)) {
+                        if (mode == 2) {
+                            oldX = shelfSizeMap.get(shelfroom)[0];
+                            oldY = shelfSizeMap.get(shelfroom)[1];
+                            if (oldX < newX) {
+                                if (oldY < newY) {
+                                    shelfSizeMap.put(shelfroom, new int[]{newX, newY});
+                                } else {
+                                    shelfSizeMap.put(shelfroom, new int[]{newX, oldY});
+                                }
+                            } else if (oldY < newY) {
+                                shelfSizeMap.put(shelfroom, new int[]{oldX, newY});
+                            }
+                        }
+                    }else{
+                        Toast.makeText(ctx, getResources().getString(R.string.all_shelf_not_found, shelfroom), LENGTH_LONG).show();
+                    }
                 }
-                rvAdapter = new MyRecyclerViewAdapter(ctx, resultChests);
+                MyRecyclerViewAdapter rvAdapter = new MyRecyclerViewAdapter(ctx, resultChests);
                 //sets in this file implemented clickListener for each row
                 rvAdapter.setClickListener(this);
                 rvTable.setAdapter(rvAdapter);
@@ -341,7 +368,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
                                     if(mode == 2){
                                         localJSONArray = arrJson;
                                     }
-                                    clearAll();
+                                    //clearAll();
                                     processData(mode, resultArray);
                                 }catch(JSONException e){
                                     Toast.makeText(ctx, R.string.all_notFound, LENGTH_LONG).show();
@@ -364,17 +391,19 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
     private boolean getLocalJSON(){
         if(localJSONArray == null){
             String jsonArrayString = sharedPref.getString("jsonArray","");
-            if(!jsonArrayString.equals("")) {
-                try{
-                    localJSONArray = new JSONArray(jsonArrayString);
-                    return true;
-                }catch(JSONException e){
-                    Toast.makeText(ctx, R.string.all_noLocalJson, LENGTH_LONG).show();
-                    Log.d("error", e.toString() + " in getLocalJSON");
-                    return false;
+            if(jsonArrayString != null) {
+                if (!jsonArrayString.equals("")) {
+                    try {
+                        localJSONArray = new JSONArray(jsonArrayString);
+                        return true;
+                    } catch (JSONException e) {
+                        Toast.makeText(ctx, R.string.all_noLocalJson, LENGTH_LONG).show();
+                        Log.d("error", e.toString() + " in getLocalJSON");
+                        return false;
+                    }
                 }
+                return false;
             }
-            return false;
         }
         return true;
     }
@@ -412,7 +441,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
             Log.d("error", je.toString() + " in retrieveFromLocal");
         }
         if(resultArray != null) {
-            clearAll();
+            //clearAll();
             processData(mode, resultArray);
         }else{
             Toast.makeText(ctx, R.string.all_notFound, LENGTH_LONG).show();
@@ -421,8 +450,21 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
 
     private void saveLocalCopy(){
         if(localJSONArray!=null) {
+            editor = sharedPref.edit();
             editor.putString("jsonArray", localJSONArray.toString());
             editor.apply();
+
+            File file = new File(getDir("data", MODE_PRIVATE), "shelfSizeMap");
+
+            try {
+                ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(file));
+                outputStream.writeObject(shelfSizeMap);
+                outputStream.flush();
+                outputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
         }
     }
 
@@ -454,9 +496,6 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
 
         //sequence.addSequenceItem(resultTable,
         //        getString(R.string.tour_table), getString(R.string.all_got));
-
-        sequence.addSequenceItem(resultImage,
-                getString(R.string.tour_image), getString(R.string.all_got));
 
         sequence.addSequenceItem(findViewById(R.id.readBtn),
                 getString(R.string.tour_readbutton), getString(R.string.all_got));
@@ -492,12 +531,11 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         }else{
             retrieveFromLocal(2);
         }
-        allShowing = true;
     }
 
     private void toggleConnection(){
         if(connection){
-            Boolean noError;
+            boolean noError;
             noError = getLocalJSON();
             if(!noError){
                 Toast.makeText(ctx, getString(R.string.all_noLocalJson), LENGTH_LONG).show();
@@ -521,7 +559,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         final Button btnClose;
         // get prompts.xml view
         LayoutInflater li = LayoutInflater.from(ctx);
-        final View promptsView = li.inflate(R.layout.activity_image_popup, null);
+        final View promptsView = li.inflate(R.layout.activity_image_popup, new LinearLayout(ctx), false);
 
         final PopupWindow pw = new PopupWindow(new ContextThemeWrapper(MainActivity.this, R.style.popupTheme));
 
@@ -553,7 +591,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         final Button btnClose;
         int rowCount, colCount, x ,y;
         LayoutInflater li = LayoutInflater.from(ctx);
-        View promptsView = li.inflate(R.layout.activity_shelf_popup, null);
+        View promptsView = li.inflate(R.layout.activity_shelf_popup, new LinearLayout(ctx), false);
 
 
         final PopupWindow pw = new PopupWindow(new ContextThemeWrapper(MainActivity.this, R.style.popupTheme));
@@ -563,11 +601,11 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         final TableLayout tlShelf = promptsView.findViewById(R.id.tl_shelf);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            rowCount = Objects.requireNonNull(shelfMap.get(chest.locationToString()), "shelf in the specific room not found")[0];
-            colCount = Objects.requireNonNull(shelfMap.get(chest.locationToString()), "shelf in the specific room not found")[1];
+            rowCount = Objects.requireNonNull(shelfSizeMap.get(chest.locationToString()), "shelf in the specific room not found")[0];
+            colCount = Objects.requireNonNull(shelfSizeMap.get(chest.locationToString()), "shelf in the specific room not found")[1];
         }else{
-            rowCount = shelfMap.get(chest.locationToString())[0];
-            colCount = shelfMap.get(chest.locationToString())[1];
+            rowCount = shelfSizeMap.get(chest.locationToString())[0];
+            colCount = shelfSizeMap.get(chest.locationToString())[1];
         }
         x = chest.coords[0];
         y = chest.coords[1];
