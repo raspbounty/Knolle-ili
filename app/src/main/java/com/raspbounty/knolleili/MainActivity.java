@@ -85,6 +85,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
     private HashMap<String, int[]> shelfSizeMap;
     private MyRecyclerViewAdapter rvAdapter;
     private String stringDelimiter = ";;del;;";
+    private int numberKnollen = 9;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,7 +121,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
 
         }
 
-        knolleIcons = new int[7];
+        knolleIcons = new int[numberKnollen];
         knolleIcons[0] = R.mipmap.ic_weihnachts_knolle;
         knolleIcons[1] = R.mipmap.ic_frau_antje_knolle;
         knolleIcons[2] = R.mipmap.ic_jubilaeums_knolle;
@@ -128,6 +129,8 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         knolleIcons[4] = R.mipmap.ic_piraten_knolle;
         knolleIcons[5] = R.mipmap.ic_wikinger_knolle;
         knolleIcons[6] = R.mipmap.ic_post_knolle;
+        knolleIcons[7] = R.mipmap.ic_hallowen_knolle;
+        knolleIcons[8] = R.mipmap.ic_harry_knolle;
 
         setupLayout();
 
@@ -735,9 +738,9 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Random rand = new Random();
-        int newId = rand.nextInt((knolleIcons.length));
+        int newId = rand.nextInt(numberKnollen);
         while(newId == knolleIconId){
-            newId = rand.nextInt((knolleIcons.length));
+            newId = rand.nextInt(numberKnollen);
         }
         knolleIconId = newId;
         // Handle item selection
