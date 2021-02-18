@@ -90,6 +90,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTheme(R.style.AppTheme);
         setContentView(R.layout.activity_main);
         input = findViewById(R.id.input);
         rvTable = findViewById(R.id.rvOutput);
@@ -121,7 +122,8 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
 
         }
 
-        knolleIcons = new int[numberKnollen];
+        numberKnollen = 3;
+        knolleIcons = new int[numberKnollen];/*
         knolleIcons[0] = R.mipmap.ic_weihnachts_knolle;
         knolleIcons[1] = R.mipmap.ic_frau_antje_knolle;
         knolleIcons[2] = R.mipmap.ic_jubilaeums_knolle;
@@ -130,8 +132,10 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         knolleIcons[5] = R.mipmap.ic_wikinger_knolle;
         knolleIcons[6] = R.mipmap.ic_post_knolle;
         knolleIcons[7] = R.mipmap.ic_hallowen_knolle;
-        knolleIcons[8] = R.mipmap.ic_harry_knolle;
-
+        knolleIcons[8] = R.mipmap.ic_harry_knolle;*/
+        knolleIcons[0] = R.drawable.ic_halloween_knolle_new;
+        knolleIcons[1] = R.drawable.ic_frau_antje_knolle_new;
+        knolleIcons[2] = R.drawable.ic_harry_knolle_new;
         setupLayout();
 
         clearAll();
@@ -330,7 +334,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
                     shelfroom = chest.getString("room") + chest.getString("rack");
                     newX = Integer.parseInt(chest.getString("X"));
                     newY = Integer.parseInt(chest.getString("Y").split("\\.")[0]);
-                    resultChests.add(new Chest(chest.getString("content"), chest.getString("room"), chest.getString("rack"), newX, newY, roomMap.get(chest.getString("room")), rackMap.get(chest.getString("rack"))));
+                    resultChests.add(new Chest(chest.getString("content"), chest.getString("room"), chest.getString("rack"), newX, newY, roomMap.get(chest.getString("room")), rackMap.get(chest.getString("rack")), chest.getString("X") + ", " + chest.getString("Y")));
                     if (shelfSizeMap.containsKey(shelfroom)) {
                         if (mode == 2) {
                             oldX = shelfSizeMap.get(shelfroom)[0];
@@ -645,7 +649,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
 
         pw.setOutsideTouchable(true);
         pw.setFocusable(true);
-        pw.showAtLocation(this.rvTable.getChildAt(pos), Gravity.CENTER, 0, 0);
+        pw.showAtLocation(this.rvTable.getChildAt(0), Gravity.CENTER, 0, 0);
     }
 
     private void showShelf(Chest chest, int pos){
@@ -688,7 +692,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
                     tv.setTextColor(getResources().getColor(R.color.colorSecondaryText));
                 }else {
                     if (row == y && col == x) {
-                        tv.setText(chest.coordsToString());
+                        tv.setText(chest.coordsAsString);
                         tv.setTextColor(getResources().getColor(R.color.colorPrimary));
                     } else {
                         tv.setText("");
@@ -698,7 +702,9 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
                 if(Build.VERSION.SDK_INT > 16)
                     tv.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
                 tv.setTextSize(18);
+                tv.setWidth(0);
                 tr.addView(tv);
+
             }
             tlShelf.addView(tr);
         }
@@ -732,7 +738,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
 
         pw.setOutsideTouchable(true);
         pw.setFocusable(true);
-        pw.showAtLocation(this.rvTable.getChildAt(pos), Gravity.CENTER, 0, 0);
+        pw.showAtLocation(this.rvTable.getChildAt(0), Gravity.CENTER, 0, 0);
     }
 
     @Override

@@ -11,6 +11,7 @@
         <item name="android:windowBackground">@color/colorBackground</item>
         <item name="android:textColor">@color/colorText</item>
         <item name="android:textColorPrimary">@color/colorText</item>
+        <item name="android:buttonStyle">@style/BtnTheme</item>
     </style>
     <style name="ActionBarStyle" parent="Theme.AppCompat.Light.DarkActionBar">
     </style>
@@ -21,9 +22,10 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:textColor">@color/colorText</item>
         <item name="android:textColorPrimary">@color/colorText</item>
+        <item name="android:buttonStyle">@style/BtnTheme</item>
     </style>
     <style name="BtnTheme" parent="@style/Widget.AppCompat.Button.Colored">
-        <item name="buttonTint">@color/colorAccent</item>
-        <item name="colorButtonNormal">@color/colorAccent</item>
+        <item name="android:textColor">@color/colorText</item>
+        <item name="android:background">@color/colorPrimaryDark</item>
     </style>
 </resources>
