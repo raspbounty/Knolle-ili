@@ -39,7 +39,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         holder.contentTv.setText(item.content);
         holder.shelfTv.setText(item.shelfLong);
         holder.storageTv.setText(item.roomLong);
-        holder.coordsTv.setText(item.coordsToString());
+        holder.coordsTv.setText(item.coordsAsString);
     }
 
     // total number of rows
