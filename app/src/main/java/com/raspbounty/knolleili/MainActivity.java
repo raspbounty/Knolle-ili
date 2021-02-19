@@ -122,7 +122,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
 
         }
 
-        numberKnollen = 3;
+        numberKnollen = 8;
         knolleIcons = new int[numberKnollen];/*
         knolleIcons[0] = R.mipmap.ic_weihnachts_knolle;
         knolleIcons[1] = R.mipmap.ic_frau_antje_knolle;
@@ -136,6 +136,11 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         knolleIcons[0] = R.drawable.ic_halloween_knolle_new;
         knolleIcons[1] = R.drawable.ic_frau_antje_knolle_new;
         knolleIcons[2] = R.drawable.ic_harry_knolle_new;
+        knolleIcons[3] = R.drawable.ic_knolle_new;
+        knolleIcons[4] = R.drawable.ic_piraten_knolle_new;
+        knolleIcons[5] = R.drawable.ic_wikinger_knolle_new;
+        knolleIcons[6] = R.drawable.ic_post_knolle_new;
+        knolleIcons[7] = R.drawable.ic_harry_knolle_new;
         setupLayout();
 
         clearAll();
@@ -445,23 +450,30 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         try{
             if(localJSONArray!=null) {
                 //convert localJSONArray to type JSONObject[]
-                JSONObject[] localJSONObject = new JSONObject[localJSONArray.length()];
-                for (int i = 0; i < localJSONArray.length(); i++) {
-                    localJSONObject[i] = localJSONArray.getJSONObject(i);
-                }
+                //JSONObject[] localJSONObject = new JSONObject[localJSONArray.length()];
+                //for (int i = 0; i < localJSONArray.length(); i++) {
+                //    localJSONObject[i] = localJSONArray.getJSONObject(i);
+                //}
 
                 if (mode == 1) {
-                    for (JSONObject chest : localJSONObject) {
-                        if (chest.getString("content").toLowerCase().contains(searchString.toLowerCase())) {
+                    JSONObject localJSONObject;
+                    for (int i = 0; i < localJSONArray.length(); i++) {
+                    //for (JSONObject chest : localJSONObject) {
+                        localJSONObject = localJSONArray.getJSONObject(i);
+                        if (localJSONObject.getString("content").toLowerCase().contains(searchString.toLowerCase())) {
                             //Log.d("error", chest.getString("content"));
-                            resultList.add(chest);
+                            resultList.add(localJSONObject);
                         }
                         //convert the result List to the result Array
                         resultArray = new JSONObject[resultList.size()];
                         resultList.toArray(resultArray);
                     }
                 } else if (mode == 2) {
-                    resultArray = localJSONObject;
+                    JSONObject[] localJSONObjects = new JSONObject[localJSONArray.length()];
+                    for (int i = 0; i < localJSONArray.length(); i++) {
+                        localJSONObjects[i] = localJSONArray.getJSONObject(i);
+                    }
+                    resultArray = localJSONObjects;
                 }
             }else{
 
