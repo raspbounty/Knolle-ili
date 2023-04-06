@@ -18,7 +18,7 @@
     <style name="popupTheme" parent="@style/Theme.AppCompat.Dialog.Alert">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-        <item name="android:background">@android:color/transparent</item>
+        <item name="android:background">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:textColor">@color/colorText</item>
         <item name="android:textColorPrimary">@color/colorText</item>
