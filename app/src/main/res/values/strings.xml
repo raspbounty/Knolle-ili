@@ -191,4 +191,5 @@
     <string name="all_location_concat">%1$s im %2$s</string>
     <string name="all_position">Position</string>
     <string name="tour_rvtable">Drücke auf den Raum um eine Raumübersicht zu bekommen und auf die Position um eine Übersicht über das Regal zu bekommen</string>
+    <string name="all_emptyinput">%1$s cannot be empty.</string>
 </resources>

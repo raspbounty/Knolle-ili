@@ -5,15 +5,17 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.graphics.drawable.shapes.RectShape;
-import android.graphics.drawable.shapes.Shape;
 import android.os.Build;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.Gravity;
@@ -29,6 +31,8 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
@@ -56,7 +60,6 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Objects;
@@ -71,6 +74,7 @@ import static android.widget.Toast.LENGTH_LONG;
 public class MainActivity extends AppCompatActivity implements MyRecyclerViewAdapter.ItemClickListener{
     private AutoCompleteTextView input;
     private RecyclerView rvTable;
+    private SwitchCompat swToggleEdit;
     private Context ctx;
     private HashMap<String, String> roomMap, rackMap;
     private String[] suggestContentList;
@@ -84,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
     private SharedPreferences.Editor editor;
     private HashMap<String, int[]> shelfSizeMap;
     private MyRecyclerViewAdapter rvAdapter;
-    private String stringDelimiter = ";;del;;";
+    private final String stringDelimiter = ";;del;;";
     private int numberKnollen = 9;
 
     @Override
@@ -94,15 +98,25 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         setContentView(R.layout.activity_main);
         input = findViewById(R.id.input);
         rvTable = findViewById(R.id.rvOutput);
+        swToggleEdit = findViewById(R.id.toggleEdit);
         ctx = getApplicationContext();
 
         sharedPref = this.getSharedPreferences("myPrefs", MODE_PRIVATE);
         connection = sharedPref.getBoolean("connection", true);
+        boolean editStateb = sharedPref.getBoolean("editState", false);
 
         Calendar lastMonth = Calendar.getInstance();
         lastMonth.add(Calendar.MONTH, -1);
         long lastRead = sharedPref.getLong("lastread", 0);
 
+        toggleEdit(editStateb);
+        swToggleEdit.setChecked(editStateb);
+        swToggleEdit.setOnCheckedChangeListener((compoundButton, b) -> {
+            toggleEdit(b);
+            editor = sharedPref.edit();
+            editor.putBoolean("editState", b);
+            editor.apply();
+        });
 
         if(connection && lastRead < lastMonth.getTime().getTime()){
             performRead();
@@ -123,16 +137,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         }
 
         numberKnollen = 8;
-        knolleIcons = new int[numberKnollen];/*
-        knolleIcons[0] = R.mipmap.ic_weihnachts_knolle;
-        knolleIcons[1] = R.mipmap.ic_frau_antje_knolle;
-        knolleIcons[2] = R.mipmap.ic_jubilaeums_knolle;
-        knolleIcons[3] = R.mipmap.ic_knolle;
-        knolleIcons[4] = R.mipmap.ic_piraten_knolle;
-        knolleIcons[5] = R.mipmap.ic_wikinger_knolle;
-        knolleIcons[6] = R.mipmap.ic_post_knolle;
-        knolleIcons[7] = R.mipmap.ic_hallowen_knolle;
-        knolleIcons[8] = R.mipmap.ic_harry_knolle;*/
+        knolleIcons = new int[numberKnollen];
         knolleIcons[0] = R.drawable.ic_halloween_knolle_new;
         knolleIcons[1] = R.drawable.ic_frau_antje_knolle_new;
         knolleIcons[2] = R.drawable.ic_harry_knolle_new;
@@ -245,40 +250,34 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         input.setAdapter(adapter);
 
         //add an listener for the click on the done button
-        input.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                boolean handled = false;
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    performSearch();
-
-                    //hide the soft keyboard
-                    InputMethodManager imm = (InputMethodManager) getSystemService(
-                            Context.INPUT_METHOD_SERVICE);
-                    if(imm != null) {
-                        imm.hideSoftInputFromWindow(input.getApplicationWindowToken(), 0);
-                    }
-
-                    //hide dropdown
-                    input.dismissDropDown();
-
-                    handled = true;
-                }
-                return handled;
-            }
-        });
-
-        input.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                //input.setText(parent.getItemAtPosition(position).toString());
+        input.setOnEditorActionListener((v, actionId, event) -> {
+            boolean handled = false;
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
                 performSearch();
-                input.dismissDropDown();
+
+                //hide the soft keyboard
                 InputMethodManager imm = (InputMethodManager) getSystemService(
                         Context.INPUT_METHOD_SERVICE);
                 if(imm != null) {
                     imm.hideSoftInputFromWindow(input.getApplicationWindowToken(), 0);
                 }
+
+                //hide dropdown
+                input.dismissDropDown();
+
+                handled = true;
+            }
+            return handled;
+        });
+
+        input.setOnItemClickListener((parent, view, position, id) -> {
+            //input.setText(parent.getItemAtPosition(position).toString());
+            performSearch();
+            input.dismissDropDown();
+            InputMethodManager imm = (InputMethodManager) getSystemService(
+                    Context.INPUT_METHOD_SERVICE);
+            if(imm != null) {
+                imm.hideSoftInputFromWindow(input.getApplicationWindowToken(), 0);
             }
         });
     }
@@ -287,7 +286,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         resultChests = new ArrayList<>();
     }
 
-    private void showNewFeature(){
+    /*private void showNewFeature(){
         try {
             int versionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
             if (sharedPref.getInt("lastUpdate", 0) != versionCode) {
@@ -321,7 +320,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         }catch(Exception e){
             Log.d("error", e.toString()+"in showNewFeature");
         }
-    }
+    }*/
 
     private void processData(int mode, JSONObject[] resultArray){
         String shelfroom;
@@ -363,6 +362,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
                 rvAdapter.setClickListener(this);
                 rvTable.setAdapter(rvAdapter);
                 rvAdapter.notifyDataSetChanged();
+                toggleEdit(swToggleEdit.isChecked());
             }
         }catch (Exception e){
             Toast.makeText(ctx, e.toString() + " in processData", LENGTH_LONG).show();
@@ -592,6 +592,79 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         hideKeyboardFrom(ctx, v);
     }
 
+    public void addchestClick(View v){
+        AddChestPopup dialogFragment = new AddChestPopup();
+
+        Bundle bundle = new Bundle();
+        bundle.putString("email", "xyz@gmail.com");
+
+        dialogFragment.setArguments(bundle);
+
+
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        Fragment prev = getSupportFragmentManager().findFragmentByTag("dialog");
+        if (prev != null) {
+            ft.remove(prev);
+        }
+        ft.addToBackStack(null);
+
+
+        dialogFragment.show(ft, "dialog");
+
+/*
+        final ImageView ivRoom;
+        final EditText etContent, etRoom, etX, etY, etRack;
+        final Button btnDismiss, btnCreate;
+        // get prompts.xml view
+        LayoutInflater li = LayoutInflater.from(ctx);
+        final View promptsView = li.inflate(R.layout.popup_window, new LinearLayout(ctx), false);
+
+        final PopupWindow pw = new PopupWindow(new ContextThemeWrapper(MainActivity.this, R.style.popupTheme));
+
+        etContent  = promptsView.findViewById(R.id.et_content);
+        etRoom  = promptsView.findViewById(R.id.et_room);
+        etX  = promptsView.findViewById(R.id.et_x);
+        etY  = promptsView.findViewById(R.id.et_y);
+        etRack  = promptsView.findViewById(R.id.et_rack);
+
+        pw.setContentView(promptsView);
+
+        btnCreate = promptsView.findViewById(R.id.btn_create);
+        promptsView.set
+        btnCreate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(TextUtils.isEmpty(etContent.getText())) {
+                    etContent.setError(getString(R.string.all_emptyinput, getString(R.string.all_content)));
+                }else if(TextUtils.isEmpty(etRoom.getText())) {
+                        etRoom.setError(getString(R.string.all_emptyinput, getString(R.string.all_room)));
+                    }else if(TextUtils.isEmpty(etX.getText())) {
+                    etX.setError(getString(R.string.all_emptyinput, getString(R.string.all_X)));
+                }else if(TextUtils.isEmpty(etY.getText())) {
+                    etY.setError(getString(R.string.all_emptyinput, getString(R.string.all_Y)));
+                }else if(TextUtils.isEmpty(etRack.getText())) {
+                    etRack.setError(getString(R.string.all_emptyinput, getString(R.string.all_rack)));
+                }else{
+                    pw.dismiss();
+                }
+            }
+        });
+
+        btnDismiss = promptsView.findViewById(R.id.btn_dismiss);
+        btnDismiss.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                pw.dismiss();
+            }
+        });
+
+        pw.setOutsideTouchable(true);
+        pw.setFocusable(true);
+        pw.showAtLocation(v, Gravity.CENTER, 0, 0);
+
+ */
+    }
+
     public void clearInput(View v){
         input.setText("");
     }
@@ -630,6 +703,23 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         editor = sharedPref.edit();
         editor.putBoolean("connection", connection);
         editor.apply();
+    }
+
+    private void toggleEdit(boolean state){
+        ImageView ivA, ivE;
+        int visibility;
+        ivA = findViewById(R.id.iv_addchest);
+        if(state) {
+            visibility = View.VISIBLE;
+        }else{
+            visibility = View.GONE;
+        }
+
+        ivA.setVisibility(visibility);
+        for(int i=0; i<rvTable.getChildCount(); i++) {
+            ivE = rvTable.getChildAt(i).findViewById(R.id.iv_edit);
+            ivE.setVisibility(visibility);
+        }
     }
 
     private void showRoomImage(Chest chest, int pos){
@@ -741,12 +831,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         tvTitle = promptsView.findViewById(R.id.tv_shelf_title);
         tvTitle.setText(getString(R.string.all_location_concat, chest.shelfLong, chest.roomLong));
         btnClose = promptsView.findViewById(R.id.btn_shelf_close);
-        btnClose.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                pw.dismiss();
-            }
-        });
+        btnClose.setOnClickListener(view -> pw.dismiss());
 
         pw.setOutsideTouchable(true);
         pw.setFocusable(true);
@@ -776,13 +861,15 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
     @Override
     public void onItemClick(View view, int position) {
         //Toast.makeText(ctx, "You clicked " + rvAdapter.getItem(position).content + " on row number " + position, Toast.LENGTH_SHORT).show();
-        //Toast.makeText(ctx, "You clicked " + view.getId(), Toast.LENGTH_SHORT).show();
+        Toast.makeText(ctx, "You clicked " + view.getId(), Toast.LENGTH_SHORT).show();
 
         if(view.getId() == R.id.ll_roomshelf || view.getId() == R.id.tv_storage || view.getId() == R.id.tv_shelf) {
             showRoomImage(resultChests.get(position), position);
         }else if(view.getId()== R.id.tv_coords){
                 showShelf(resultChests.get(position), position);
 
+        //}else if(view.getId() == R.id.iv_edit){
+         //   Toast.makeText(ctx, "You clicked editg", Toast.LENGTH_SHORT).show();
         }
 
     }

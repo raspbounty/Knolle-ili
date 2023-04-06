@@ -5,10 +5,13 @@
     android:icon="@drawable/ic_connection_enabled"
     app:showAsAction="ifRoom"
     android:title="@string/app_name"
-    android:id="@+id/connection"/>
+    android:id="@+id/connection" />
 <item
     android:icon="@mipmap/ic_knolle"
     app:showAsAction="ifRoom"
     android:title="@string/app_name"
     android:id="@+id/knolleIcon"/>
+<item android:id="@+id/action_settings"
+    android:title="hhhhhh"
+    app:showAsAction="never"/>
 </menu>

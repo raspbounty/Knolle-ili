@@ -53,6 +53,15 @@
                 android:layout_margin="5dp"
                 android:layout_weight="1"/>
         </LinearLayout>
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/toggleEdit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:text="edit mode"
+            android:textColor="@color/colorText"
+            android:textOff="off"
+            android:textOn="on"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -78,16 +87,33 @@
             android:layout_weight="1"
             android:textSize="20sp"
             android:gravity="center"/>
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_baseline_edit_24"
+            android:visibility="gone" />
     </LinearLayout>
         <ScrollView
             android:layout_width="fill_parent"
             android:layout_height="wrap_content">
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvOutput"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:listitem="@layout/recyclerview_row">
-            </androidx.recyclerview.widget.RecyclerView>
+                android:orientation="vertical">
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvOutput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:listitem="@layout/recyclerview_row">
+                </androidx.recyclerview.widget.RecyclerView>
+                <ImageView
+                    android:layout_width="50sp"
+                    android:layout_height="50sp"
+                    android:src="@drawable/ic_baseline_add_box_24"
+                    android:layout_gravity="center"
+                    android:id="@+id/iv_addchest"
+                    android:onClick="addchestClick"/>
+            </LinearLayout>
             <!--
             <TableLayout
                 android:id="@+id/resultTable"
