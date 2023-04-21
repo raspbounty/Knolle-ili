@@ -192,4 +192,6 @@
     <string name="all_position">Position</string>
     <string name="tour_rvtable">Drücke auf den Raum um eine Raumübersicht zu bekommen und auf die Position um eine Übersicht über das Regal zu bekommen</string>
     <string name="all_emptyinput">%1$s cannot be empty.</string>
+    <string name="all_test">test</string>
+    <string name="all_close">schliessen</string>
 </resources>

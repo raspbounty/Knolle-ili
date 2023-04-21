@@ -3,10 +3,9 @@ package com.raspbounty.knolleili;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Build;
-import androidx.appcompat.app.AlertDialog;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
@@ -15,11 +14,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -27,12 +24,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.CompoundButton;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
@@ -64,10 +58,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Random;
-
-import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
-import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
-import uk.co.deanwild.materialshowcaseview.shape.RectangleShape;
 
 import static android.widget.Toast.LENGTH_LONG;
 
@@ -138,14 +128,14 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
 
         numberKnollen = 8;
         knolleIcons = new int[numberKnollen];
-        knolleIcons[0] = R.drawable.ic_halloween_knolle_new;
-        knolleIcons[1] = R.drawable.ic_frau_antje_knolle_new;
-        knolleIcons[2] = R.drawable.ic_harry_knolle_new;
-        knolleIcons[3] = R.drawable.ic_knolle_new;
-        knolleIcons[4] = R.drawable.ic_piraten_knolle_new;
-        knolleIcons[5] = R.drawable.ic_wikinger_knolle_new;
-        knolleIcons[6] = R.drawable.ic_post_knolle_new;
-        knolleIcons[7] = R.drawable.ic_harry_knolle_new;
+        knolleIcons[0] = R.drawable.ic_halloween_knolle;
+        knolleIcons[1] = R.drawable.ic_frau_antje_knolle;
+        knolleIcons[2] = R.drawable.ic_harry_knolle;
+        knolleIcons[3] = R.drawable.ic_knolle;
+        knolleIcons[4] = R.drawable.ic_piraten_knolle;
+        knolleIcons[5] = R.drawable.ic_wikinger_knolle;
+        knolleIcons[6] = R.drawable.ic_post_knolle;
+        knolleIcons[7] = R.drawable.ic_harry_knolle;
         setupLayout();
 
         clearAll();
@@ -155,7 +145,6 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
 
         boolean showCasePlayed = sharedPref.getBoolean("showcasePlayed", false);
         if(!showCasePlayed) {
-            createTour();
             editor = sharedPref.edit();
             editor.putBoolean("showcasePlayed", true);
             editor.apply();
@@ -365,8 +354,8 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
                 toggleEdit(swToggleEdit.isChecked());
             }
         }catch (Exception e){
-            Toast.makeText(ctx, e.toString() + " in processData", LENGTH_LONG).show();
-            Log.d("error", e.toString() + " in processData");
+            Toast.makeText(ctx, e + " in processData", LENGTH_LONG).show();
+            Log.d("error", e + " in processData");
         }
     }
 
@@ -433,7 +422,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
                         return true;
                     } catch (JSONException e) {
                         Toast.makeText(ctx, R.string.all_noLocalJson, LENGTH_LONG).show();
-                        Log.d("error", e.toString() + " in getLocalJSON");
+                        Log.d("error", e + " in getLocalJSON");
                         return false;
                     }
                 }
@@ -480,7 +469,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
                 //ToDo handle this
             }
         }catch(JSONException je){
-            Log.d("error", je.toString() + " in retrieveFromLocal");
+            Log.d("error", je + " in retrieveFromLocal");
         }
         if(resultArray != null) {
             //clearAll();
@@ -553,33 +542,6 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         }
 
         view.clearFocus();
-    }
-
-    private void createTour(){
-        input.setText(getString(R.string.tour_gips));
-        performSearch();
-        Button searchBtn = findViewById(R.id.searchBtn);
-        ShowcaseConfig config = new ShowcaseConfig();
-        config.setDelay(300); // half second between each showcase view
-        RectangleShape rect = new RectangleShape(200, 200);
-        rect.setAdjustToTarget(true);
-        config.setShape(rect);
-
-        MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(this);
-
-        sequence.setConfig(config);
-
-        sequence.addSequenceItem(input,
-                getString(R.string.tour_searchbar), getString(R.string.all_got));
-
-        sequence.addSequenceItem(searchBtn,
-                getString(R.string.tour_searchbutton), getString(R.string.all_got));
-
-        sequence.addSequenceItem(findViewById(R.id.readBtn),
-                getString(R.string.tour_readbutton), getString(R.string.all_got));
-
-        sequence.addSequenceItem(rvTable, getString(R.string.tour_rvtable), getString(R.string.all_got));
-        sequence.start();
     }
 
     public void readClick(View v){
@@ -708,7 +670,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
     private void toggleEdit(boolean state){
         ImageView ivA, ivE;
         int visibility;
-        ivA = findViewById(R.id.iv_addchest);
+        ivA = findViewById(R.id.fab_addchest);
         if(state) {
             visibility = View.VISIBLE;
         }else{

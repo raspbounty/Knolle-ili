@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/rl"
+    android:layout_marginTop="?android:attr/actionBarSize"
     tools:context=".MainActivity">
     <LinearLayout
         android:layout_width="match_parent"
@@ -91,7 +92,8 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:src="@drawable/ic_baseline_edit_24"
-            android:visibility="gone" />
+            android:visibility="gone"
+            android:contentDescription="@string/all_test"/>
     </LinearLayout>
         <ScrollView
             android:layout_width="fill_parent"
@@ -106,44 +108,8 @@
                     android:layout_height="wrap_content"
                     tools:listitem="@layout/recyclerview_row">
                 </androidx.recyclerview.widget.RecyclerView>
-                <ImageView
-                    android:layout_width="50sp"
-                    android:layout_height="50sp"
-                    android:src="@drawable/ic_baseline_add_box_24"
-                    android:layout_gravity="center"
-                    android:id="@+id/iv_addchest"
-                    android:onClick="addchestClick"/>
+
             </LinearLayout>
-            <!--
-            <TableLayout
-                android:id="@+id/resultTable"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:stretchColumns="*">
-                <TableRow>
-                    <TextView
-                        android:text="@string/all_content"
-                        android:textSize="18sp"
-                        android:textAlignment="center"/>
-                    <TextView
-                        android:text="@string/all_room"
-                        android:textSize="18sp"
-                        android:textAlignment="center"/>
-                    <TextView
-                        android:text="@string/all_rack"
-                        android:textSize="18sp"
-                        android:textAlignment="center"/>
-                    <TextView
-                        android:text="@string/all_X"
-                        android:textSize="18sp"
-                        android:textAlignment="center"/>
-                    <TextView
-                        android:text="@string/all_Y"
-                        android:textSize="18sp"
-                        android:textAlignment="center"/>
-                </TableRow>
-            </TableLayout>
-            -->
         </ScrollView>
 
     </LinearLayout>
