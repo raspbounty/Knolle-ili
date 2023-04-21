@@ -47,7 +47,7 @@ public class AddChestPopup extends DialogFragment {
       final EditText editText = view.findViewById(R.id.et_content);
       Log.d("popup", Integer.toString(editText.getId()));
       Button btnDone = view.findViewById(R.id.popupCreateBtn);
-      btnDone.setOnClickListener(new View.OnClickListener() {
+      /*btnDone.setOnClickListener(new View.OnClickListener() {
          @Override
          public void onClick(View view) {
             if(TextUtils.isEmpty(editText.getText())) {
@@ -69,7 +69,7 @@ public class AddChestPopup extends DialogFragment {
             Log.d("popup", "cancelled");
             dismiss();
          }
-      });
+      });*/
 
    }
 

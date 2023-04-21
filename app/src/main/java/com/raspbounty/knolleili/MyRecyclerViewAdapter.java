@@ -13,10 +13,10 @@ import java.util.List;
 
 public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAdapter.ViewHolder> {
 
-    private List<Chest> mData;
-    private LayoutInflater mInflater;
+    private final List<Chest> mData;
+    private final LayoutInflater mInflater;
     private ItemClickListener mClickListener;
-    private Context mContext;
+    private final Context mContext;
 
     // data is passed into the constructor
     MyRecyclerViewAdapter(Context context, List<Chest> data) {

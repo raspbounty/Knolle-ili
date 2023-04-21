@@ -29,6 +29,9 @@
     <string name="tour_connection">You are now able to activate or deactivate the offline mode</string>
     <string name="all_update_note">new feature</string>
     <string name="all_location_concat">%1$s in %2$s</string>
+    <string name="all_position">position</string>
     <string name="tour_rvtable">Press the Room to get more information about the room and the position to get an overview of the shelf</string>
     <string name="all_emptyinput">%1$s darf nicht leer sein.</string>
+    <string name="all_test">test</string>
+    <string name="all_close">close</string>
 </resources>
