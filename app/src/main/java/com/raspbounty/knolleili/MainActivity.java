@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Build;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
@@ -77,7 +76,6 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
     private SharedPreferences sharedPref;
     private SharedPreferences.Editor editor;
     private HashMap<String, int[]> shelfSizeMap;
-    private MyRecyclerViewAdapter rvAdapter;
     private final String stringDelimiter = ";;del;;";
     private int numberKnollen = 9;
 
@@ -346,7 +344,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
                         Toast.makeText(ctx, getResources().getString(R.string.all_shelf_not_found, shelfroom), LENGTH_LONG).show();
                     }
                 }
-                rvAdapter = new MyRecyclerViewAdapter(ctx, resultChests);
+                MyRecyclerViewAdapter rvAdapter = new MyRecyclerViewAdapter(ctx, resultChests);
                 //sets in this file implemented clickListener for each row
                 rvAdapter.setClickListener(this);
                 rvTable.setAdapter(rvAdapter);
@@ -731,13 +729,9 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
 
         final TableLayout tlShelf = promptsView.findViewById(R.id.tl_shelf);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            rowCount = Objects.requireNonNull(shelfSizeMap.get(chest.locationToString()), "shelf in the specific room not found")[0];
-            colCount = Objects.requireNonNull(shelfSizeMap.get(chest.locationToString()), "shelf in the specific room not found")[1];
-        }else{
-            rowCount = shelfSizeMap.get(chest.locationToString())[0];
-            colCount = shelfSizeMap.get(chest.locationToString())[1];
-        }
+
+        rowCount = Objects.requireNonNull(shelfSizeMap.get(chest.locationToString()), "shelf in the specific room not found")[0];
+        colCount = Objects.requireNonNull(shelfSizeMap.get(chest.locationToString()), "shelf in the specific room not found")[1];
         x = chest.coords[0];
         y = chest.coords[1];
 
@@ -763,8 +757,8 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
                     }
                     tv.setBackgroundResource(R.drawable.back);
                 }
-                if(Build.VERSION.SDK_INT > 16)
-                    tv.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+
+                tv.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
                 tv.setTextSize(18);
                 tv.setWidth(0);
                 tr.addView(tv);
@@ -775,15 +769,15 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
 
         //create x-axis legend
         topLeft.setText("");
-        if(Build.VERSION.SDK_INT > 16)
-            topLeft.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+
+        topLeft.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
         topLeft.setTextSize(18);
         header.addView(topLeft);
         for(int col = 1; col < colCount; col ++){
             tv = new TextView(ctx);
             tv.setText(String.valueOf(col));
-            if(Build.VERSION.SDK_INT > 16)
-                tv.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+
+            tv.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
             tv.setTextSize(18);
             tv.setTextColor(getResources().getColor(R.color.colorSecondaryText));
             header.addView(tv);
