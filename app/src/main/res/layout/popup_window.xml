@@ -1,43 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.appcompat.widget.LinearLayoutCompat
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     style="@style/popupTheme"
-    android:padding="5dp">
+    android:padding="5dp"
+    android:layout_margin="20dp">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/et_content"
+            android:hint="@string/all_content"
+            android:text="@string/all_content"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-    <EditText
+        android:orientation="horizontal"
+        android:gravity="center_horizontal">
+
+    <androidx.appcompat.widget.AppCompatSpinner
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:id="@+id/et_content"
-        android:hint="@string/all_content"/>
-    <EditText
+        android:id="@+id/spinner_room"
+        style="@style/SpnTheme" />
+    <androidx.appcompat.widget.AppCompatSpinner
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:id="@+id/spinner_rack"
+        style="@style/SpnTheme"/>
+    <!--<EditText
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:id="@+id/et_room"
-        android:hint="@string/all_room"/>
+        android:hint="@string/all_room"
+        android:text="@string/all_room"/>
+
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:id="@+id/et_rack"
-        android:hint="@string/all_rack"/>
+        android:hint="@string/all_rack"
+        android:text="@string/all_rack"/>-->
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:id="@+id/et_x"
-        android:hint="@string/all_X"/>
+        android:hint="@string/all_X"
+        android:text="@string/all_X"/>
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:id="@+id/et_y"
-        android:hint="@string/all_Y"/>
+        android:hint="@string/all_Y"
+        android:text="@string/all_Y"/>
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
