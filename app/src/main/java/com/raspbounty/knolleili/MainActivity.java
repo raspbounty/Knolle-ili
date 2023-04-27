@@ -609,8 +609,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         dialogFragment.show(fm, "fragment_edit_name");
     }
 
-    public void editChestClick(View v){
-        Chest chestToEdit = new Chest(ctx ,"cont", "room", "rack", 1, 1);
+    public void editChest(Chest chestToEdit){
         FragmentManager fm = getSupportFragmentManager();
         AddChestPopup dialogFragment = AddChestPopup.newInstance(chestToEdit, 2);
 
@@ -818,7 +817,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
     @Override
     public void onItemClick(View view, int position) {
         //Toast.makeText(ctx, "You clicked " + rvAdapter.getItem(position).content + " on row number " + position, Toast.LENGTH_SHORT).show();
-        Toast.makeText(ctx, "You clicked " + view.getId(), Toast.LENGTH_SHORT).show();
+        //Toast.makeText(ctx, "You clicked " + view.getId(), Toast.LENGTH_SHORT).show();
 
         if(view.getId() == R.id.ll_roomshelf || view.getId() == R.id.tv_storage || view.getId() == R.id.tv_shelf) {
             showRoomImage(resultChests.get(position), position);
@@ -826,7 +825,8 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
                 showShelf(resultChests.get(position), position);
 
         }else if(view.getId() == R.id.iv_edit){
-            Toast.makeText(ctx, "You clicked editg", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(ctx, "You clicked editg", Toast.LENGTH_SHORT).show();
+            editChest(resultChests.get(position));
         }
 
     }
