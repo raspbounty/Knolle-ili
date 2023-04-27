@@ -5,8 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/rl"
-    tools:context=".MainActivity">
-    <!--android:layout_marginTop="?android:attr/actionBarSize"-->
+    tools:context=".MainActivity"
+    android:layout_marginTop="?android:attr/actionBarSize">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"

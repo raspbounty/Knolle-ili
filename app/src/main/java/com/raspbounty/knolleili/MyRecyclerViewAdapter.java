@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -52,6 +53,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     // stores and recycles views as they are scrolled off screen
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         TextView contentTv, storageTv, coordsTv, shelfTv;
+        ImageView ivEdit;
 
         ViewHolder(View itemView) {
             super(itemView);
@@ -59,11 +61,13 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
             storageTv = itemView.findViewById(R.id.tv_storage);
             shelfTv = itemView.findViewById(R.id.tv_shelf);
             coordsTv = itemView.findViewById(R.id.tv_coords);
+            ivEdit = itemView.findViewById(R.id.iv_edit);
             itemView.setOnClickListener(this);
             contentTv.setOnClickListener(this);
             storageTv.setOnClickListener(this);
             coordsTv.setOnClickListener(this);
             shelfTv.setOnClickListener(this);
+            ivEdit.setOnClickListener(this);
         }
 
         @Override

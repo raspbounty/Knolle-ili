@@ -69,7 +69,7 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:textColor="@color/colorSecondaryText"/>
-            <ImageView
+            <androidx.appcompat.widget.AppCompatImageView
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:src="@drawable/ic_baseline_edit_24"

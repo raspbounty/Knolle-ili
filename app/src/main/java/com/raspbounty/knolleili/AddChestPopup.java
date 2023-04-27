@@ -90,11 +90,11 @@ public class AddChestPopup extends DialogFragment {
 
          etX.setEnabled(false);
          etX.setInputType(0);
-         etX.setText(chest.coords[0]);
+         etX.setText(String.valueOf(chest.coords[0]));
 
          etY.setEnabled(false);
          etY.setInputType(0);
-         etY.setText(chest.coords[0]);
+         etY.setText(String.valueOf(chest.coords[1]));
       }
 
 
