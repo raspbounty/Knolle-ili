@@ -12,8 +12,11 @@
         <item name="android:textColor">@color/colorText</item>
         <item name="android:textColorPrimary">@color/colorText</item>
         <item name="android:buttonStyle">@style/BtnTheme</item>
+        <item name="android:popupBackground">@color/colorPrimaryDark</item>
+        <item name="popupMenuStyle">@style/popupTheme</item>
     </style>
     <style name="ActionBarStyle" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:popupBackground">@color/colorPrimaryDark</item>
     </style>
     <style name="popupTheme" parent="@style/Theme.AppCompat.Dialog.Alert">
         <item name="windowActionBar">false</item>
@@ -23,9 +26,15 @@
         <item name="android:textColor">@color/colorText</item>
         <item name="android:textColorPrimary">@color/colorText</item>
         <item name="android:buttonStyle">@style/BtnTheme</item>
+        <item name="android:popupBackground">@color/colorPrimaryDark</item>
     </style>
     <style name="BtnTheme" parent="@style/Widget.AppCompat.Button.Colored">
         <item name="android:textColor">@color/colorText</item>
         <item name="android:background">@color/colorPrimaryDark</item>
+    </style>
+    <style name="SpnTheme" parent="@style/Widget.AppCompat.Spinner">
+        <item name="android:textColor">@color/colorText</item>
+        <item name="android:background">@color/colorPrimaryDark</item>
+        <item name="android:popupBackground">@color/colorPrimaryDark</item>
     </style>
 </resources>

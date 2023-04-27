@@ -152,6 +152,40 @@
         <item>Holzscheiben</item>
         <item>Watte</item>
     </string-array>
+    <string-array name="rack_array" translatable="false">
+        <item>Regal 1</item>
+        <item>Schrank 1</item>
+        <item>Schrank 2</item>
+        <item>Schrank 3</item>
+        <item>Würfel 1</item>
+        <item>Würfel 2</item>
+        <item>Trophäenbrett 1</item>
+    </string-array>
+    <string-array name="k_array" translatable="false">
+        <item>Regal 1</item>
+        <item>Schrank 1</item>
+        <item>Schrank 2</item>
+        <item>Schrank 3</item>
+        <item>Würfel 1</item>
+        <item>Würfel 2</item>
+        <item>Trophäenbrett 1</item>
+    </string-array>
+    <string-array name="w_array" translatable="false">
+        <item>Regal 1</item>
+    </string-array>
+    <string-array name="d_array" translatable="false">
+        <item>Schrank 1</item>
+    </string-array>
+    <string-array name="p_array" translatable="false">
+        <item>Regal 1</item>
+    </string-array>
+    <string-array name="room_array" translatable="false">
+        <item>Materialkeller</item>
+        <item>Kömpchen</item>
+        <item>Wappenraum</item>
+        <item>Dachgiebel</item>
+        <item>Kabuff</item>
+    </string-array>
     <string name="all_search">suchen</string>
     <string name="all_content">Inhalt</string>
     <string name="all_room">Raum</string>
@@ -194,4 +228,10 @@
     <string name="all_emptyinput">%1$s cannot be empty.</string>
     <string name="all_test">test</string>
     <string name="all_close">schliessen</string>
+    <string name="api_pos_exists">Es gibt bereits eine Kiste an der Position %1$s im Regal %2$s, wolltest du bearbeiten?</string>
+    <string name="api_couldnt_edit">Bearbeitung war nicht möglich.</string>
+    <string name="api_added_chest">Kiste erfolgreich hinzugefügt.</string>
+    <string name="api_edited_chest">Kiste erfolgreich bearbeitet.</string>
+    <string name="api_couldnt_add">Hinzufügen nicht möglich.</string>
+    <string name="all_unknown">Unbekannter Fehler.</string>
 </resources>

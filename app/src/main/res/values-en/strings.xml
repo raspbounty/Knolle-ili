@@ -34,4 +34,10 @@
     <string name="all_emptyinput">%1$s darf nicht leer sein.</string>
     <string name="all_test">test</string>
     <string name="all_close">close</string>
+    <string name="api_pos_exists">There exists already a chest at postion %1$s in rack %2$s.</string>
+    <string name="api_couldnt_edit">Could not edit chest.</string>
+    <string name="api_added_chest">Successful added chest.</string>
+    <string name="api_edited_chest">Successful edited chest.</string>
+    <string name="api_couldnt_add">Could not add chest.</string>
+    <string name="all_unknown">Unknown error.</string>
 </resources>

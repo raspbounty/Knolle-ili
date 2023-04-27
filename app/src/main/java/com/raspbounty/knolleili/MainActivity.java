@@ -5,10 +5,11 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentResultListener;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -39,6 +40,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -83,22 +85,22 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setTheme(R.style.AppTheme);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.coord_main);
         input = findViewById(R.id.input);
         rvTable = findViewById(R.id.rvOutput);
         swToggleEdit = findViewById(R.id.toggleEdit);
         ctx = getApplicationContext();
 
         sharedPref = this.getSharedPreferences("myPrefs", MODE_PRIVATE);
-        connection = sharedPref.getBoolean("connection", true);
-        boolean editStateb = sharedPref.getBoolean("editState", false);
+        connection = true;//sharedPref.getBoolean("connection", true);
+        boolean editState = sharedPref.getBoolean("editState", false);
 
         Calendar lastMonth = Calendar.getInstance();
         lastMonth.add(Calendar.MONTH, -1);
         long lastRead = sharedPref.getLong("lastread", 0);
 
-        toggleEdit(editStateb);
-        swToggleEdit.setChecked(editStateb);
+        toggleEdit(editState);
+        swToggleEdit.setChecked(editState);
         swToggleEdit.setOnCheckedChangeListener((compoundButton, b) -> {
             toggleEdit(b);
             editor = sharedPref.edit();
@@ -267,47 +269,19 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
                 imm.hideSoftInputFromWindow(input.getApplicationWindowToken(), 0);
             }
         });
+
+        FloatingActionButton fab = findViewById(R.id.fab_addchest);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                addChestClick(view);
+            }
+        });
     }
 
     private void clearAll(){
         resultChests = new ArrayList<>();
     }
-
-    /*private void showNewFeature(){
-        try {
-            int versionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
-            if (sharedPref.getInt("lastUpdate", 0) != versionCode) {
-                // Commiting in the preferences, that the update was successful.
-                editor = sharedPref.edit();
-                editor.putInt("lastUpdate", versionCode);
-                editor.apply();
-
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-
-                // set title
-                alertDialogBuilder.setTitle(getString(R.string.all_update_note));
-
-                // set dialog message
-                alertDialogBuilder
-                        .setMessage(getString(R.string.tour_connection))
-                        .setCancelable(false)
-                        .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,int id) {
-                                // if this button is clicked, close
-                                // current activity
-                            }
-                        });
-
-                // create alert dialog
-                AlertDialog alertDialog = alertDialogBuilder.create();
-
-                // show it
-                alertDialog.show();
-            }
-        }catch(Exception e){
-            Log.d("error", e.toString()+"in showNewFeature");
-        }
-    }*/
 
     private void processData(int mode, JSONObject[] resultArray){
         String shelfroom;
@@ -325,7 +299,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
                     shelfroom = chest.getString("room") + chest.getString("rack");
                     newX = Integer.parseInt(chest.getString("X"));
                     newY = Integer.parseInt(chest.getString("Y").split("\\.")[0]);
-                    resultChests.add(new Chest(chest.getString("content"), chest.getString("room"), chest.getString("rack"), newX, newY, roomMap.get(chest.getString("room")), rackMap.get(chest.getString("rack")), chest.getString("X") + ", " + chest.getString("Y")));
+                    resultChests.add(new Chest(ctx ,chest.getString("content"), chest.getString("room"), chest.getString("rack"), newX, newY));
                     if (shelfSizeMap.containsKey(shelfroom)) {
                         if (mode == 2) {
                             oldX = shelfSizeMap.get(shelfroom)[0];
@@ -394,6 +368,72 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
                                     processData(mode, resultArray);
                                 }catch(JSONException e){
                                     Toast.makeText(ctx, R.string.all_notFound, LENGTH_LONG).show();
+                                    Log.d("error", e.toString());
+                                }
+                            }
+                        }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError volleyError) {
+                        dialog.dismiss();
+                        Log.d("error", volleyError.toString());
+                        Toast.makeText(ctx, R.string.all_networkError, LENGTH_LONG).show();
+                    }
+                });
+        // Add the request to the RequestQueue.
+        queue.add(jsonObjectRequest);
+        //queue.start();
+    }
+
+    private void jsonRequest(final int mode, Chest chest){
+        String url = "";
+
+        // Instantiate the RequestQueue.
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String apikey = "insertAPIKey";
+
+        if(mode == 3) {
+
+            url = String.format("https://api.psg-knolle.de/product/add.php?apikey=%s&content=%s&room=%s&rack=%s&x=%s&y=%s", apikey, chest.content, chest.roomShort, chest.shelfShort, String.valueOf(chest.coords[0]), String.valueOf(chest.coords[1]));
+        }else if(mode == 4){
+            url = String.format("https://api.psg-knolle.de/product/editcontent.php?apikey=%s&content=%s&room=%s&rack=%s&x=%s&y=%s", apikey, chest.content, chest.roomShort, chest.shelfShort, String.valueOf(chest.coords[0]), String.valueOf(chest.coords[1]));
+        }
+        final ProgressDialog dialog = ProgressDialog.show(this, null, "Please Wait");
+        // Request a string response from the provided URL.
+        final JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (com.android.volley.Request.Method.GET, url, null,
+                        new Response.Listener<JSONObject>() {
+                            @Override
+                            public void onResponse(JSONObject response) {
+                                String message = "";
+                                dialog.dismiss();
+                                try {
+                                    String respMessage = response.getString("message");
+                                    int respFlag = response.getInt("flag");
+                                    if(mode == 3){
+                                        switch (respFlag) {
+                                            case 0:
+                                                message = getString(R.string.api_pos_exists, chest.coordsAsString, chest.shelfLong);
+                                                break;
+                                            case -1:
+                                                message = getString(R.string.api_couldnt_add);
+                                                break;
+                                            case 1:
+                                                message = getString(R.string.api_added_chest);
+                                                break;
+                                        }
+                                    }else if(mode == 4){
+                                        switch (respFlag) {
+                                            case -1:
+                                                message = getString(R.string.api_couldnt_edit);
+                                                break;
+                                            case 1:
+                                                message = getString(R.string.api_edited_chest);
+                                                break;
+                                        }
+                                    }
+                                    Toast.makeText(ctx, message, LENGTH_LONG).show();
+                                }catch(JSONException e){
+                                    Toast.makeText(ctx, R.string.all_unknown, LENGTH_LONG).show();
                                     Log.d("error", e.toString());
                                 }
                             }
@@ -552,77 +592,38 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         hideKeyboardFrom(ctx, v);
     }
 
-    public void addchestClick(View v){
-        AddChestPopup dialogFragment = new AddChestPopup();
+    public void addChestClick(View v){
 
-        Bundle bundle = new Bundle();
-        bundle.putString("email", "xyz@gmail.com");
+        FragmentManager fm = getSupportFragmentManager();
+        AddChestPopup dialogFragment = AddChestPopup.newInstance(1);
 
-        dialogFragment.setArguments(bundle);
-
-
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        Fragment prev = getSupportFragmentManager().findFragmentByTag("dialog");
-        if (prev != null) {
-            ft.remove(prev);
-        }
-        ft.addToBackStack(null);
-
-
-        dialogFragment.show(ft, "dialog");
-
-/*
-        final ImageView ivRoom;
-        final EditText etContent, etRoom, etX, etY, etRack;
-        final Button btnDismiss, btnCreate;
-        // get prompts.xml view
-        LayoutInflater li = LayoutInflater.from(ctx);
-        final View promptsView = li.inflate(R.layout.popup_window, new LinearLayout(ctx), false);
-
-        final PopupWindow pw = new PopupWindow(new ContextThemeWrapper(MainActivity.this, R.style.popupTheme));
-
-        etContent  = promptsView.findViewById(R.id.et_content);
-        etRoom  = promptsView.findViewById(R.id.et_room);
-        etX  = promptsView.findViewById(R.id.et_x);
-        etY  = promptsView.findViewById(R.id.et_y);
-        etRack  = promptsView.findViewById(R.id.et_rack);
-
-        pw.setContentView(promptsView);
-
-        btnCreate = promptsView.findViewById(R.id.btn_create);
-        promptsView.set
-        btnCreate.setOnClickListener(new View.OnClickListener() {
+        fm.setFragmentResultListener("result", this, new FragmentResultListener() {
             @Override
-            public void onClick(View view) {
-                if(TextUtils.isEmpty(etContent.getText())) {
-                    etContent.setError(getString(R.string.all_emptyinput, getString(R.string.all_content)));
-                }else if(TextUtils.isEmpty(etRoom.getText())) {
-                        etRoom.setError(getString(R.string.all_emptyinput, getString(R.string.all_room)));
-                    }else if(TextUtils.isEmpty(etX.getText())) {
-                    etX.setError(getString(R.string.all_emptyinput, getString(R.string.all_X)));
-                }else if(TextUtils.isEmpty(etY.getText())) {
-                    etY.setError(getString(R.string.all_emptyinput, getString(R.string.all_Y)));
-                }else if(TextUtils.isEmpty(etRack.getText())) {
-                    etRack.setError(getString(R.string.all_emptyinput, getString(R.string.all_rack)));
-                }else{
-                    pw.dismiss();
-                }
+            public void onFragmentResult(@NonNull String requestKey, @NonNull Bundle result) {
+                String[] rs = result.getStringArray("newChest");
+                Chest chest = new Chest(ctx ,rs[0], rs[1], rs[2], Integer.parseInt(rs[3]), Integer.parseInt(rs[4]));
+                jsonRequest(3, chest);
+                Log.d("popup", rs[0]);
             }
         });
+        dialogFragment.show(fm, "fragment_edit_name");
+    }
 
-        btnDismiss = promptsView.findViewById(R.id.btn_dismiss);
-        btnDismiss.setOnClickListener(new View.OnClickListener() {
+    public void editChestClick(View v){
+        Chest chestToEdit = new Chest(ctx ,"cont", "room", "rack", 1, 1);
+        FragmentManager fm = getSupportFragmentManager();
+        AddChestPopup dialogFragment = AddChestPopup.newInstance(chestToEdit, 2);
+
+        fm.setFragmentResultListener("result", this, new FragmentResultListener() {
             @Override
-            public void onClick(View view) {
-                pw.dismiss();
+            public void onFragmentResult(@NonNull String requestKey, @NonNull Bundle result) {
+                String[] rs = result.getStringArray("newChest");
+                Chest chest = new Chest(ctx ,rs[0], rs[1], rs[2], Integer.parseInt(rs[3]), Integer.parseInt(rs[4]));
+                jsonRequest(3, chest);
+                Log.d("popup", rs[0]);
             }
         });
-
-        pw.setOutsideTouchable(true);
-        pw.setFocusable(true);
-        pw.showAtLocation(v, Gravity.CENTER, 0, 0);
-
- */
+        dialogFragment.show(fm, "fragment_edit_name");
     }
 
     public void clearInput(View v){
@@ -824,8 +825,8 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         }else if(view.getId()== R.id.tv_coords){
                 showShelf(resultChests.get(position), position);
 
-        //}else if(view.getId() == R.id.iv_edit){
-         //   Toast.makeText(ctx, "You clicked editg", Toast.LENGTH_SHORT).show();
+        }else if(view.getId() == R.id.iv_edit){
+            Toast.makeText(ctx, "You clicked editg", Toast.LENGTH_SHORT).show();
         }
 
     }
