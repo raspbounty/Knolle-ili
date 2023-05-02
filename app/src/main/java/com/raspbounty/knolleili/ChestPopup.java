@@ -65,7 +65,6 @@ public class ChestPopup extends DialogFragment {
          spRoom.setEnabled(false);
          spRoom.setClickable(false);
 
-
          spRack.setEnabled(false);
          spRack.setClickable(false);
 

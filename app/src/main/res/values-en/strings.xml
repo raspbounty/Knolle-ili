@@ -33,4 +33,6 @@
     <string name="api_edited_chest">Successful edited chest.</string>
     <string name="api_couldnt_add">Could not add chest.</string>
     <string name="all_unknown">Unknown error.</string>
+    <string name="all_done">done</string>
+    <string name="all_cancel">cancel</string>
 </resources>

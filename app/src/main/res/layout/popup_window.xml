@@ -51,7 +51,7 @@
         <Button
             android:layout_width="fill_parent"
             android:layout_height="match_parent"
-            android:text="cancel"
+            android:text="@string/all_cancel"
             android:layout_weight="1"
             android:id="@+id/popupCancelButton"
             android:layout_margin="5dp"
@@ -59,7 +59,7 @@
         <Button
             android:layout_width="fill_parent"
             android:layout_height="match_parent"
-            android:text="create"
+            android:text="@string/all_done"
             android:layout_weight="1"
             android:id="@+id/popupCreateBtn"
             android:layout_margin="5dp"
