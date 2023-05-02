@@ -1,74 +1,78 @@
 package com.raspbounty.knolleili;
 
 import android.content.Context;
-import android.content.res.Resources;
+import android.util.Pair;
 
-import java.util.HashMap;
+import java.util.Arrays;
 
 class Chest {
-
-    String content, roomShort, roomLong, shelfShort, shelfLong, coordsAsString;
+    String content, coordsAsString;
+    ShortLong rack, room;
     int [] coords;
+    final private String [] roomsShort, racksShort, roomsLong, racksLong;
 
+    int visibility;
 
-    public Chest(Context ctx, String mContent, String mRoomShort, String mRackShort, int mX, int mY) {
+    public Chest(Context ctx, String mContent, String mRoom, String mRack, int mX, int mY, int mVisibility) {
+        racksShort = new String[]{"R1", "S1", "S2", "S3", "W1", "W2", "T1"};
+        roomsShort = new String[]{"M", "K", "W", "D", "P"};
+        racksLong = new String[]{ctx.getResources().getString(R.string.all_r1), ctx.getResources().getString(R.string.all_s1),
+                ctx.getResources().getString(R.string.all_s2), ctx.getResources().getString(R.string.all_s3),
+                ctx.getResources().getString(R.string.all_w1), ctx.getResources().getString(R.string.all_w2), ctx.getResources().getString(R.string.all_t1)};
+        roomsLong = new String[]{ctx.getResources().getString(R.string.all_m), ctx.getResources().getString(R.string.all_k),
+                ctx.getResources().getString(R.string.all_k), ctx.getResources().getString(R.string.all_d), ctx.getResources().getString(R.string.all_p)};
+
         content = mContent;
-        roomShort = mRoomShort;
-        shelfShort = mRackShort;
+        room = getRoomPair(mRoom);;
+        rack = getRackPair(mRack);
         coords = new int[]{mX, mY};
-        switch (mRoomShort){
-            case "M": roomLong = ctx.getResources().getString(R.string.all_m);
-                break;
-            case "K": roomLong = ctx.getResources().getString(R.string.all_k);
-                break;
-            case "W": roomLong = ctx.getResources().getString(R.string.all_w);
-                break;
-            case "D": roomLong = ctx.getResources().getString(R.string.all_d);
-                break;
-            case "P": roomLong = ctx.getResources().getString(R.string.all_p);
-                break;
-            default:
-                roomLong = ctx.getResources().getString(R.string.all_error);
-        }
-
-        switch (mRackShort){
-            case "R1": shelfLong = ctx.getResources().getString(R.string.all_r1);
-                break;
-            case "S1": shelfLong = ctx.getResources().getString(R.string.all_s1);
-                break;
-            case "S2": shelfLong = ctx.getResources().getString(R.string.all_s2);
-                break;
-            case "S3": shelfLong = ctx.getResources().getString(R.string.all_s3);
-                break;
-            case "W1": shelfLong = ctx.getResources().getString(R.string.all_w1);
-                break;
-            case "W2": shelfLong = ctx.getResources().getString(R.string.all_w2);
-                break;
-            case "T1": shelfLong = ctx.getResources().getString(R.string.all_t1);
-                break;
-            default:
-                roomLong = ctx.getResources().getString(R.string.all_error);
-        }
         coordsAsString = mX + ", " + mY;
+
+        visibility = mVisibility;
     }
 
-    public Chest(String mContent, String mRoomShort, String mRackShort, int mX, int mY, String mRoomLong, String mRackLong, String mCoordsAsString) {
-        content = mContent;
-        roomShort = mRoomShort;
-        shelfShort = mRackShort;
-        coords = new int[]{mX, mY};
-        roomLong = mRoomLong;
-        shelfLong = mRackLong;
-        coordsAsString = mCoordsAsString;
+    private ShortLong getRackPair(String mRack){
+        String rackShort, rackLong;
+        int indexInShort = Arrays.asList(racksShort).indexOf(mRack);
+        int indexInLong = Arrays.asList(racksLong).indexOf(mRack);
+
+        if(indexInShort != -1){
+            rackShort = mRack;
+            rackLong = racksLong[indexInShort];
+        } else if(indexInLong != -1){
+            rackShort = racksShort[indexInLong];
+            rackLong = mRack;
+        }else{
+            rackLong = "error";
+            rackShort = "error";
+        }
+        return new ShortLong(rackShort, rackLong);
+
     }
 
+    private ShortLong getRoomPair(String mRoom){
+        String roomShort, roomLong;
+        int indexInShort = Arrays.asList(roomsShort).indexOf(mRoom);
+        int indexInLong = Arrays.asList(roomsLong).indexOf(mRoom);
 
+        if(indexInShort != -1){
+            roomShort = mRoom;
+            roomLong = roomsLong[indexInShort];
+        } else if(indexInLong != -1){
+            roomShort = roomsShort[indexInLong];
+            roomLong = mRoom;
+        }else{
+            roomLong = "error";
+            roomShort = "error";
+        }
+        return new ShortLong(roomShort, roomLong);
+    }
 
     public String locationToString(){
-        return this.roomShort + "" + this.shelfShort;
+        return this.room.shrt + "" + this.rack.shrt;
     }
 
     public String getImageName(){
-        return this.roomShort.toLowerCase() + "_" + this.shelfShort.toLowerCase();
+        return this.room.shrt.toLowerCase() + "_" + this.rack.shrt.toLowerCase();
     }
 }

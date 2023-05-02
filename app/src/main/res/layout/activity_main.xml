@@ -5,8 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/rl"
-    tools:context=".MainActivity"
-    android:layout_marginTop="?android:attr/actionBarSize">
+    tools:context=".MainActivity">
+    <!--android:layout_marginTop="?android:attr/actionBarSize"-->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -54,15 +54,6 @@
                 android:layout_margin="5dp"
                 android:layout_weight="1"/>
         </LinearLayout>
-        <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/toggleEdit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:text="edit mode"
-            android:textColor="@color/colorText"
-            android:textOff="off"
-            android:textOn="on"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

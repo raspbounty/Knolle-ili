@@ -5,11 +5,9 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentResultListener;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -67,7 +65,6 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
     private RecyclerView rvTable;
     private SwitchCompat swToggleEdit;
     private Context ctx;
-    private HashMap<String, String> roomMap, rackMap;
     private String[] suggestContentList;
     private ArrayList<Chest> resultChests;
     private int knolleIconId;
@@ -81,6 +78,14 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
     private final String stringDelimiter = ";;del;;";
     private int numberKnollen = 9;
 
+    private int chestVisibility;
+
+    final private String apikey = "jGd6AvfshUzd9mqSG2wGy7oX5SSu5VLu";
+
+    //final private String baseURL = "https://api.psg-knolle.de/product/";
+    final private String baseURL = "http://10.0.2.2/testKnolleApi/product/";
+    private MyRecyclerViewAdapter rvAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,25 +93,18 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         setContentView(R.layout.coord_main);
         input = findViewById(R.id.input);
         rvTable = findViewById(R.id.rvOutput);
-        swToggleEdit = findViewById(R.id.toggleEdit);
+
         ctx = getApplicationContext();
 
         sharedPref = this.getSharedPreferences("myPrefs", MODE_PRIVATE);
         connection = true;//sharedPref.getBoolean("connection", true);
-        boolean editState = sharedPref.getBoolean("editState", false);
+
 
         Calendar lastMonth = Calendar.getInstance();
         lastMonth.add(Calendar.MONTH, -1);
         long lastRead = sharedPref.getLong("lastread", 0);
 
-        toggleEdit(editState);
-        swToggleEdit.setChecked(editState);
-        swToggleEdit.setOnCheckedChangeListener((compoundButton, b) -> {
-            toggleEdit(b);
-            editor = sharedPref.edit();
-            editor.putBoolean("editState", b);
-            editor.apply();
-        });
+
 
         if(connection && lastRead < lastMonth.getTime().getTime()){
             performRead();
@@ -136,9 +134,11 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         knolleIcons[5] = R.drawable.ic_wikinger_knolle;
         knolleIcons[6] = R.drawable.ic_post_knolle;
         knolleIcons[7] = R.drawable.ic_harry_knolle;
-        setupLayout();
 
         clearAll();
+        setupLayout();
+
+
         createMaps();
 
 
@@ -159,15 +159,32 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         mOptionsMenu = menu;
 
         knolleIconId = rand.nextInt((knolleIcons.length));
-        mOptionsMenu.findItem(R.id.knolleIcon).setIcon(knolleIcons[knolleIconId]);
+        /*mOptionsMenu.findItem(R.id.knolleIcon).setIcon(knolleIcons[knolleIconId]);
 
         if(connection){
             mOptionsMenu.findItem(R.id.connection).setIcon(R.drawable.ic_connection_enabled);
         }else{
             mOptionsMenu.findItem(R.id.connection).setIcon(R.drawable.ic_connection_disabled);
-        }
+        }*/
 
-        return super.onCreateOptionsMenu(menu);
+        MenuItem itemSwitch = mOptionsMenu.findItem(R.id.myswitch);
+        itemSwitch.setActionView(R.layout.switch_layout);
+
+
+        swToggleEdit = itemSwitch.getActionView().findViewById(R.id.switchForActionBar);
+        boolean editState = sharedPref.getBoolean("editState", false);
+        toggleEdit(editState);
+
+        swToggleEdit.setChecked(editState);
+        swToggleEdit.setOnCheckedChangeListener((compoundButton, b) -> {
+            toggleEdit(b);
+            editor = sharedPref.edit();
+            editor.putBoolean("editState", b);
+            editor.apply();
+        });
+
+
+        return super.onCreateOptionsMenu(mOptionsMenu);
     }
 
     @Override
@@ -179,22 +196,6 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
     }
 
     public void createMaps(){
-        roomMap = new HashMap<>();
-        roomMap.put("M", getString(R.string.all_m));
-        roomMap.put("K", getString(R.string.all_k));
-        roomMap.put("W", getString(R.string.all_w));
-        roomMap.put("D", getString(R.string.all_d));
-        roomMap.put("P", getString(R.string.all_p));
-
-        rackMap = new HashMap<>();
-        rackMap.put("R1", getString(R.string.all_r1));
-        rackMap.put("S1", getString(R.string.all_s1));
-        rackMap.put("S2", getString(R.string.all_s2));
-        rackMap.put("S3", getString(R.string.all_s3));
-        rackMap.put("W1", getString(R.string.all_w1));
-        rackMap.put("W2", getString(R.string.all_w2));
-        rackMap.put("T1", getString(R.string.all_t1));
-
         File file = new File(getDir("data", MODE_PRIVATE), "shelfSizeMap");
 
         try {
@@ -225,6 +226,11 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         LinearLayoutManager lm = new LinearLayoutManager(ctx);
         rvTable.setHasFixedSize(true);
         rvTable.setLayoutManager(lm);
+
+        //rvAdapter = new MyRecyclerViewAdapter(ctx, resultChests);
+        //sets in this file implemented clickListener for each row
+        //rvAdapter.setClickListener(this);
+        //rvTable.setAdapter(rvAdapter);
 
         // Get the string array
         //String[] countries = getResources().getStringArray(R.array.content_array);
@@ -271,12 +277,9 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         });
 
         FloatingActionButton fab = findViewById(R.id.fab_addchest);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                addChestClick(view);
-            }
-        });
+        fab.setOnClickListener(this::addChestClick);
+
+
     }
 
     private void clearAll(){
@@ -284,7 +287,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
     }
 
     private void processData(int mode, JSONObject[] resultArray){
-        String shelfroom;
+        String shelfRoom;
         int newX, newY, oldX, oldY;
         try {
             int length;
@@ -296,34 +299,31 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
             }else {
                 resultChests = new ArrayList<>();
                 for (JSONObject chest : resultArray) {
-                    shelfroom = chest.getString("room") + chest.getString("rack");
+                    shelfRoom = chest.getString("room") + chest.getString("rack");
                     newX = Integer.parseInt(chest.getString("X"));
                     newY = Integer.parseInt(chest.getString("Y").split("\\.")[0]);
-                    resultChests.add(new Chest(ctx ,chest.getString("content"), chest.getString("room"), chest.getString("rack"), newX, newY));
-                    if (shelfSizeMap.containsKey(shelfroom)) {
+                    resultChests.add(new Chest(ctx ,chest.getString("content"), chest.getString("room"), chest.getString("rack"), newX, newY, chestVisibility));
+
+                    //rvAdapter.notifyItemInserted(resultChests.size()-1);
+                    if (shelfSizeMap.containsKey(shelfRoom)) {
                         if (mode == 2) {
-                            oldX = shelfSizeMap.get(shelfroom)[0];
-                            oldY = shelfSizeMap.get(shelfroom)[1];
+                            oldX = shelfSizeMap.get(shelfRoom)[0];
+                            oldY = shelfSizeMap.get(shelfRoom)[1];
                             if (oldX < newX) {
                                 if (oldY < newY) {
-                                    shelfSizeMap.put(shelfroom, new int[]{newX, newY});
+                                    shelfSizeMap.put(shelfRoom, new int[]{newX, newY});
                                 } else {
-                                    shelfSizeMap.put(shelfroom, new int[]{newX, oldY});
+                                    shelfSizeMap.put(shelfRoom, new int[]{newX, oldY});
                                 }
                             } else if (oldY < newY) {
-                                shelfSizeMap.put(shelfroom, new int[]{oldX, newY});
+                                shelfSizeMap.put(shelfRoom, new int[]{oldX, newY});
                             }
                         }
                     }else{
-                        Toast.makeText(ctx, getResources().getString(R.string.all_shelf_not_found, shelfroom), LENGTH_LONG).show();
+                        Toast.makeText(ctx, getResources().getString(R.string.all_shelf_not_found, shelfRoom), LENGTH_LONG).show();
                     }
                 }
-                MyRecyclerViewAdapter rvAdapter = new MyRecyclerViewAdapter(ctx, resultChests);
-                //sets in this file implemented clickListener for each row
-                rvAdapter.setClickListener(this);
-                rvTable.setAdapter(rvAdapter);
-                rvAdapter.notifyDataSetChanged();
-                toggleEdit(swToggleEdit.isChecked());
+                updateRV();
             }
         }catch (Exception e){
             Toast.makeText(ctx, e + " in processData", LENGTH_LONG).show();
@@ -331,111 +331,115 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         }
     }
 
+    private void updateRV(){
+        MyRecyclerViewAdapter rvAdapter = new MyRecyclerViewAdapter(ctx, resultChests);
+        //sets in this file implemented clickListener for each row
+        rvAdapter.setClickListener(this);
+        rvTable.setAdapter(rvAdapter);
+        rvAdapter.notifyDataSetChanged();
+    }
+
     private void jsonRequest(final int mode){
         String url = "";
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(this);
-        String apikey = "jGd6AvfshUzd9mqSG2wGy7oX5SSu5VLu";
 
         if(mode == 1) {
-            url = String.format("https://api.psg-knolle.de/product/search.php?s=%s&apikey=%s", input.getText(), apikey);
+            url = String.format(baseURL + "search.php?s=%s&apikey=%s", input.getText(), apikey);
         }else if(mode == 2){
-            url = String.format("https://api.psg-knolle.de/product/read.php?apikey=%s", apikey);
+            url = String.format(baseURL + "read.php?apikey=%s", apikey);
         }
         final ProgressDialog dialog = ProgressDialog.show(this, null, "Please Wait");
         // Request a string response from the provided URL.
         final JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                 (com.android.volley.Request.Method.GET, url, null,
-                        new Response.Listener<JSONObject>() {
-                            @Override
-                            public void onResponse(JSONObject response) {
-                                dialog.dismiss();
-                                try {
-                                    JSONArray arrJson = response.getJSONArray("results");
-                                    JSONObject[] resultArray = new JSONObject[arrJson.length()];
-                                    for (int i = 0; i < arrJson.length(); i++) {
-                                        resultArray[i] = arrJson.getJSONObject(i);
-                                    }
-                                    if(mode == 2){
-                                        localJSONArray = arrJson;
-
-                                        if(needToUpdateSuggestions){
-                                            updateSuggestions();
-                                            needToUpdateSuggestions = false;
-                                        }
-                                    }
-                                    //clearAll();
-                                    processData(mode, resultArray);
-                                }catch(JSONException e){
-                                    Toast.makeText(ctx, R.string.all_notFound, LENGTH_LONG).show();
-                                    Log.d("error", e.toString());
+                        response -> {
+                            dialog.dismiss();
+                            try {
+                                JSONArray arrJson = response.getJSONArray("results");
+                                JSONObject[] resultArray = new JSONObject[arrJson.length()];
+                                for (int i = 0; i < arrJson.length(); i++) {
+                                    resultArray[i] = arrJson.getJSONObject(i);
                                 }
+                                if(mode == 2){
+                                    localJSONArray = arrJson;
+
+                                    if(needToUpdateSuggestions){
+                                        updateSuggestions();
+                                        needToUpdateSuggestions = false;
+                                    }
+                                }
+                                //clearAll();
+                                processData(mode, resultArray);
+                            }catch(JSONException e){
+                                Toast.makeText(ctx, R.string.all_notFound, LENGTH_LONG).show();
+                                Log.d("error", e.toString());
                             }
-                        }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError volleyError) {
-                        dialog.dismiss();
-                        Log.d("error", volleyError.toString());
-                        Toast.makeText(ctx, R.string.all_networkError, LENGTH_LONG).show();
-                    }
-                });
+                        }, volleyError -> {
+                            dialog.dismiss();
+                            Log.d("error", volleyError.toString());
+                            Toast.makeText(ctx, R.string.all_networkError, LENGTH_LONG).show();
+                        });
         // Add the request to the RequestQueue.
         queue.add(jsonObjectRequest);
         //queue.start();
     }
 
-    private void jsonRequest(final int mode, Chest chest){
+    private void jsonRequest(final int mode, Chest chest, int index){
         String url = "";
 
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(this);
-        String apikey = "jGd6AvfshUzd9mqSG2wGy7oX5SSu5VLu";
+
 
         if(mode == 3) {
-
-            url = String.format("https://api.psg-knolle.de/product/add.php?apikey=%s&content=%s&room=%s&rack=%s&x=%s&y=%s", apikey, chest.content, chest.roomShort, chest.shelfShort, String.valueOf(chest.coords[0]), String.valueOf(chest.coords[1]));
+            url = String.format(baseURL + "add.php?apikey=%s&content=%s&room=%s&rack=%s&x=%s&y=%s", apikey, chest.content, chest.room.shrt, chest.rack.shrt, chest.coords[0], chest.coords[1]);
         }else if(mode == 4){
-            url = String.format("https://api.psg-knolle.de/product/editcontent.php?apikey=%s&content=%s&room=%s&rack=%s&x=%s&y=%s", apikey, chest.content, chest.roomShort, chest.shelfShort, String.valueOf(chest.coords[0]), String.valueOf(chest.coords[1]));
+            url = String.format(baseURL + "editcontent.php?apikey=%s&content=%s&room=%s&rack=%s&x=%s&y=%s", apikey, chest.content, chest.room.shrt, chest.rack.shrt, chest.coords[0], chest.coords[1]);
         }
+        Log.d("api", url);
         final ProgressDialog dialog = ProgressDialog.show(this, null, "Please Wait");
         // Request a string response from the provided URL.
         final JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                 (com.android.volley.Request.Method.GET, url, null,
-                        new Response.Listener<JSONObject>() {
-                            @Override
-                            public void onResponse(JSONObject response) {
-                                String message = "";
-                                dialog.dismiss();
-                                try {
-                                    String respMessage = response.getString("message");
-                                    int respFlag = response.getInt("flag");
-                                    if(mode == 3){
-                                        switch (respFlag) {
-                                            case 0:
-                                                message = getString(R.string.api_pos_exists, chest.coordsAsString, chest.shelfLong);
-                                                break;
-                                            case -1:
-                                                message = getString(R.string.api_couldnt_add);
-                                                break;
-                                            case 1:
-                                                message = getString(R.string.api_added_chest);
-                                                break;
-                                        }
-                                    }else if(mode == 4){
-                                        switch (respFlag) {
-                                            case -1:
-                                                message = getString(R.string.api_couldnt_edit);
-                                                break;
-                                            case 1:
-                                                message = getString(R.string.api_edited_chest);
-                                                break;
-                                        }
+                        response -> {
+                            String message = "";
+                            dialog.dismiss();
+                            try {
+                                int respFlag = response.getInt("flag");
+                                if(mode == 3){
+                                    switch (respFlag) {
+                                        case 0:
+                                            message = getString(R.string.api_pos_exists, chest.coordsAsString, chest.rack.lng);
+                                            break;
+                                        case -1:
+                                            message = getString(R.string.api_couldnt_add);
+                                            break;
+                                        case 1:
+                                            message = getString(R.string.api_added_chest);
+
+                                            resultChests.add(chest);
+                                            //rvAdapter.notifyItemInserted(resultChests.size() - 1);
+                                            updateRV();
+
+                                            break;
                                     }
-                                    Toast.makeText(ctx, message, LENGTH_LONG).show();
-                                }catch(JSONException e){
-                                    Toast.makeText(ctx, R.string.all_unknown, LENGTH_LONG).show();
-                                    Log.d("error", e.toString());
+                                }else if(mode == 4){
+                                    switch (respFlag) {
+                                        case -1:
+                                            message = getString(R.string.api_couldnt_edit);
+                                            break;
+                                        case 1:
+                                            message = getString(R.string.api_edited_chest);
+                                            resultChests.set(index, chest);
+                                            updateRV();
+                                            break;
+                                    }
                                 }
+                                Toast.makeText(ctx, message, LENGTH_LONG).show();
+                            }catch(JSONException e){
+                                Toast.makeText(ctx, R.string.all_unknown, LENGTH_LONG).show();
+                                Log.d("error", e.toString());
                             }
                         }, new Response.ErrorListener() {
                     @Override
@@ -476,12 +480,6 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         String searchString = input.getText().toString();
         try{
             if(localJSONArray!=null) {
-                //convert localJSONArray to type JSONObject[]
-                //JSONObject[] localJSONObject = new JSONObject[localJSONArray.length()];
-                //for (int i = 0; i < localJSONArray.length(); i++) {
-                //    localJSONObject[i] = localJSONArray.getJSONObject(i);
-                //}
-
                 if (mode == 1) {
                     JSONObject localJSONObject;
                     for (int i = 0; i < localJSONArray.length(); i++) {
@@ -541,7 +539,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         //get suggestionArray from localJsonArray
         if(localJSONArray != null){
             //convert localJSONArray to type JSONObject[]
-            JSONObject chest = new JSONObject();
+            JSONObject chest;
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < localJSONArray.length(); i++) {
                 try {
@@ -554,7 +552,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
             }
             suggestContentList = sb.toString().split(stringDelimiter);
             //remove duplicates
-            suggestContentList =  new HashSet<String>(Arrays.asList(suggestContentList)).toArray(new String[0]);
+            suggestContentList = new HashSet<>(Arrays.asList(suggestContentList)).toArray(new String[0]);
 
             sb = new StringBuilder();
             for (String item: suggestContentList) {
@@ -595,32 +593,26 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
     public void addChestClick(View v){
 
         FragmentManager fm = getSupportFragmentManager();
-        AddChestPopup dialogFragment = AddChestPopup.newInstance(1);
+        ChestPopup dialogFragment = ChestPopup.newInstance(1);
 
-        fm.setFragmentResultListener("result", this, new FragmentResultListener() {
-            @Override
-            public void onFragmentResult(@NonNull String requestKey, @NonNull Bundle result) {
-                String[] rs = result.getStringArray("newChest");
-                Chest chest = new Chest(ctx ,rs[0], rs[1], rs[2], Integer.parseInt(rs[3]), Integer.parseInt(rs[4]));
-                jsonRequest(3, chest);
-                Log.d("popup", rs[0]);
-            }
+        fm.setFragmentResultListener("result", this, (requestKey, result) -> {
+            String[] rs = result.getStringArray("newChest");
+            Chest chest = new Chest(ctx ,rs[0], rs[1], rs[2], Integer.parseInt(rs[3]), Integer.parseInt(rs[4]), chestVisibility);
+            jsonRequest(3, chest, 0);
+            Log.d("popup", rs[0]);
         });
         dialogFragment.show(fm, "fragment_edit_name");
     }
 
-    public void editChest(Chest chestToEdit){
+    public void editChest(Chest chestToEdit, int index){
         FragmentManager fm = getSupportFragmentManager();
-        AddChestPopup dialogFragment = AddChestPopup.newInstance(chestToEdit, 2);
+        ChestPopup dialogFragment = ChestPopup.newInstance(chestToEdit, 2);
 
-        fm.setFragmentResultListener("result", this, new FragmentResultListener() {
-            @Override
-            public void onFragmentResult(@NonNull String requestKey, @NonNull Bundle result) {
-                String[] rs = result.getStringArray("newChest");
-                Chest chest = new Chest(ctx ,rs[0], rs[1], rs[2], Integer.parseInt(rs[3]), Integer.parseInt(rs[4]));
-                jsonRequest(3, chest);
-                Log.d("popup", rs[0]);
-            }
+        fm.setFragmentResultListener("result", this, (requestKey, result) -> {
+            String[] rs = result.getStringArray("newChest");
+            Chest chest = new Chest(ctx ,rs[0], rs[1], rs[2], Integer.parseInt(rs[3]), Integer.parseInt(rs[4]), chestVisibility);
+            jsonRequest(4, chest, index);
+            Log.d("popup", rs[0]);
         });
         dialogFragment.show(fm, "fragment_edit_name");
     }
@@ -645,7 +637,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         }
     }
 
-    private void toggleConnection(){
+    /*private void toggleConnection(){
         if(connection){
             boolean noError;
             noError = getLocalJSON();
@@ -663,23 +655,23 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         editor = sharedPref.edit();
         editor.putBoolean("connection", connection);
         editor.apply();
-    }
+    }*/
 
     private void toggleEdit(boolean state){
         ImageView ivA, ivE;
-        int visibility;
+
         ivA = findViewById(R.id.fab_addchest);
         if(state) {
-            visibility = View.VISIBLE;
+            chestVisibility = View.VISIBLE;
         }else{
-            visibility = View.GONE;
+            chestVisibility = View.GONE;
         }
 
-        ivA.setVisibility(visibility);
-        for(int i=0; i<rvTable.getChildCount(); i++) {
-            ivE = rvTable.getChildAt(i).findViewById(R.id.iv_edit);
-            ivE.setVisibility(visibility);
+        ivA.setVisibility(chestVisibility);
+        for (Chest chest: resultChests) {
+            chest.visibility = chestVisibility;
         }
+        updateRV();
     }
 
     private void showRoomImage(Chest chest, int pos){
@@ -700,14 +692,9 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
 
         pw.setContentView(promptsView);
 
-        tvTitle.setText(getString(R.string.all_location_concat, chest.shelfLong, chest.roomLong));
+        tvTitle.setText(getString(R.string.all_location_concat, chest.rack.lng, chest.room.lng));
         btnClose = promptsView.findViewById(R.id.btn_img_close);
-        btnClose.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                pw.dismiss();
-            }
-        });
+        btnClose.setOnClickListener(view -> pw.dismiss());
 
         pw.setOutsideTouchable(true);
         pw.setFocusable(true);
@@ -785,7 +772,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         tlShelf.addView(header);
 
         tvTitle = promptsView.findViewById(R.id.tv_shelf_title);
-        tvTitle.setText(getString(R.string.all_location_concat, chest.shelfLong, chest.roomLong));
+        tvTitle.setText(getString(R.string.all_location_concat, chest.rack.lng, chest.room.lng));
         btnClose = promptsView.findViewById(R.id.btn_shelf_close);
         btnClose.setOnClickListener(view -> pw.dismiss());
 
@@ -806,9 +793,9 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         if(item.getItemId() == R.id.knolleIcon){
             mOptionsMenu.findItem(R.id.knolleIcon).setIcon(knolleIcons[knolleIconId]);
             return true;
-        }else if(item.getItemId() == R.id.connection){
-            toggleConnection();
-            return true;
+        //}else if(item.getItemId() == R.id.connection){
+        //    toggleConnection();
+        //    return true;
         }else{
             return super.onOptionsItemSelected(item);
         }
@@ -816,17 +803,13 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
 
     @Override
     public void onItemClick(View view, int position) {
-        //Toast.makeText(ctx, "You clicked " + rvAdapter.getItem(position).content + " on row number " + position, Toast.LENGTH_SHORT).show();
-        //Toast.makeText(ctx, "You clicked " + view.getId(), Toast.LENGTH_SHORT).show();
-
         if(view.getId() == R.id.ll_roomshelf || view.getId() == R.id.tv_storage || view.getId() == R.id.tv_shelf) {
             showRoomImage(resultChests.get(position), position);
         }else if(view.getId()== R.id.tv_coords){
                 showShelf(resultChests.get(position), position);
 
         }else if(view.getId() == R.id.iv_edit){
-            //Toast.makeText(ctx, "You clicked editg", Toast.LENGTH_SHORT).show();
-            editChest(resultChests.get(position));
+            editChest(resultChests.get(position), position);
         }
 
     }

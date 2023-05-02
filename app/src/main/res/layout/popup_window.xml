@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     style="@style/popupTheme"
     android:padding="5dp"
-    android:layout_margin="20dp">
+    android:layout_margin="10dp">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -14,8 +14,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/et_content"
-            android:hint="@string/all_content"
-            android:text="@string/all_content"/>
+            android:hint="@string/all_content"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -32,31 +31,18 @@
         android:layout_height="match_parent"
         android:id="@+id/spinner_rack"
         style="@style/SpnTheme"/>
-    <!--<EditText
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:id="@+id/et_room"
-        android:hint="@string/all_room"
-        android:text="@string/all_room"/>
-
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:id="@+id/et_rack"
-        android:hint="@string/all_rack"
-        android:text="@string/all_rack"/>-->
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:id="@+id/et_x"
-        android:hint="@string/all_X"
-        android:text="@string/all_X"/>
+        android:inputType="number"
+        android:hint="@string/all_X"/>
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:id="@+id/et_y"
-        android:hint="@string/all_Y"
-        android:text="@string/all_Y"/>
+        android:inputType="number"
+        android:hint="@string/all_Y"/>
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"

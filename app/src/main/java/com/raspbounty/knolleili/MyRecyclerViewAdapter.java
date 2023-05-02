@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 
@@ -27,6 +28,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     }
 
     // inflates the row layout from xml when needed
+    @NonNull
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = mInflater.inflate(R.layout.recyclerview_row, parent, false);
@@ -38,9 +40,11 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     public void onBindViewHolder(ViewHolder holder, int position) {
         Chest item = mData.get(position);
         holder.contentTv.setText(item.content);
-        holder.shelfTv.setText(item.shelfLong);
-        holder.storageTv.setText(item.roomLong);
+        holder.shelfTv.setText(item.rack.lng);
+        holder.storageTv.setText(item.room.lng);
         holder.coordsTv.setText(item.coordsAsString);
+
+        holder.ivEdit.setVisibility(item.visibility);
     }
 
     // total number of rows
@@ -92,7 +96,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     }
 
     @Override
-    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
     }
 }

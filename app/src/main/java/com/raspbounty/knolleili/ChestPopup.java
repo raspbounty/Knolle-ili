@@ -1,11 +1,6 @@
 package com.raspbounty.knolleili;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -18,42 +13,28 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatSpinner;
 import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.FragmentManager;
 
-import java.util.ArrayList;
-
-public class AddChestPopup extends DialogFragment {
+public class ChestPopup extends DialogFragment {
    private static Chest chest;
    private static int mode;
-   public AddChestPopup(){
+   public ChestPopup(){
       //needs to be here empty
    }
 
-   public static AddChestPopup newInstance(Chest mchest, int mmode){
+   public static ChestPopup newInstance(Chest mchest, int mmode){
       mode = mmode;
       chest = mchest;
-      //final EditText etContent = view.findViewById(R.id.et_content);
-      AddChestPopup frag = new AddChestPopup();
-      //Bundle args = new Bundle();
-      //args.putString("return", "etContent.toString()");
-      //frag.setArguments(args);
-
+      ChestPopup frag = new ChestPopup();
       return frag;
    }
 
-   public static AddChestPopup newInstance(int mmode){
+   public static ChestPopup newInstance(int mmode){
       mode = mmode;
-      //final EditText etContent = view.findViewById(R.id.et_content);
-      AddChestPopup frag = new AddChestPopup();
-      //Bundle args = new Bundle();
-      //args.putString("return", "etContent.toString()");
-      //frag.setArguments(args);
-
+      ChestPopup frag = new ChestPopup();
       return frag;
    }
 
@@ -136,6 +117,12 @@ public class AddChestPopup extends DialogFragment {
             adapterRack.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             // Apply the adapter to the spinner
             spRack.setAdapter(adapterRack);
+
+            if(mode==2){
+               int rackPos = adapterRack.getPosition(chest.rack.lng);
+               spRack.setSelection(rackPos);
+
+            }
          }
 
 
@@ -154,8 +141,8 @@ public class AddChestPopup extends DialogFragment {
       spRack.setAdapter(adapterRack);
 
       if(mode == 2){
-         int roomPos = adapterRoom.getPosition(chest.roomLong);
-         int rackPos = adapterRoom.getPosition(chest.shelfLong);
+         int roomPos = adapterRoom.getPosition(chest.room.lng);
+         int rackPos = adapterRack.getPosition(chest.rack.lng);
 
          spRoom.setSelection(roomPos);
          spRack.setSelection(rackPos);
@@ -165,10 +152,6 @@ public class AddChestPopup extends DialogFragment {
       btnDone.setOnClickListener(view1 -> {
           if(TextUtils.isEmpty(etContent.getText())) {
             Toast.makeText(this.getContext(), getString(R.string.all_emptyinput, getString(R.string.all_content)), Toast.LENGTH_LONG).show();
-         //}else if(TextUtils.isEmpty(etRoom.getText())) {
-         //    Toast.makeText(this.getContext(), getString(R.string.all_emptyinput, getString(R.string.all_room)), Toast.LENGTH_LONG).show();
-         //}else if(TextUtils.isEmpty(etRack.getText())) {
-         //    Toast.makeText(this.getContext(), getString(R.string.all_emptyinput, getString(R.string.all_rack)), Toast.LENGTH_LONG).show();
          }else if(TextUtils.isEmpty(etX.getText())) {
             Toast.makeText(this.getContext(), getString(R.string.all_emptyinput, getString(R.string.all_X)), Toast.LENGTH_LONG).show();
          }else if(TextUtils.isEmpty(etY.getText())) {
