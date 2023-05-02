@@ -14,9 +14,11 @@
         <item name="android:buttonStyle">@style/BtnTheme</item>
         <item name="android:popupBackground">@color/colorPrimaryDark</item>
         <item name="popupMenuStyle">@style/popupTheme</item>
+        <item name="actionBarStyle">@style/ActionBarStyle</item>
     </style>
     <style name="ActionBarStyle" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:popupBackground">@color/colorPrimaryDark</item>
+        <item name="background">@color/colorPrimaryDark</item>
     </style>
     <style name="popupTheme" parent="@style/Theme.AppCompat.Dialog.Alert">
         <item name="windowActionBar">false</item>
