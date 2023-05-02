@@ -234,4 +234,6 @@
     <string name="api_edited_chest">Kiste erfolgreich bearbeitet.</string>
     <string name="api_couldnt_add">Hinzufügen nicht möglich.</string>
     <string name="all_unknown">Unbekannter Fehler.</string>
+    <string name="all_done">fertig</string>
+    <string name="all_cancel">abbrechen</string>
 </resources>
